@@ -1,9 +1,19 @@
 # ATECC508A
 
+[![CircleCI](https://circleci.com/gh/nerves-hub/atecc508a.svg?style=svg)](https://circleci.com/gh/nerves-hub/atecc508a)
+[![Hex version](https://img.shields.io/hexpm/v/atecc508a.svg "Hex version")](https://hex.pm/packages/atecc508a)
+
+The [ATECC508A Crypto Authentication](https://www.microchip.com/wwwproducts/en/ATECC508A)
+(or the newer ATECC608A) is the main component of the NervesKey. If your device
+needs to authenticate with NervesHub or another cloud service using client-side
+SSL, this library could be of interest. The higher level
+[NervesKey](https://github.com/nerves-hub/nerves_key) package will likely make
+more sense and you're recommended to start there.
+
 ## Installation
 
-The package can be installed
-by adding `atecc508a` to your list of dependencies in `mix.exs`:
+The package can be installed by adding `atecc508a` to your list of dependencies
+in `mix.exs`:
 
 ```elixir
 def deps do
@@ -15,11 +25,11 @@ end
 
 Documentation can be found at [https://hexdocs.pm/atecc508a](https://hexdocs.pm/atecc508a).
 
-## device configuration
+## Device configuration
 
-See Table 2-5 in the ATECC508A data sheet for documentation on the
-configuration zone.  This software expects the following configuration to be
-programmed (unspecified bytes are either not programmable or kept as their
+See Table 2-5 in the ATECC508A data sheet for documentation on the configuration
+zone.  This software expects the following configuration to be programmed
+(unspecified bytes are either not programmable or kept as their
 defaults):
 
 Bytes  | Name        | Value  | Description
