@@ -11,7 +11,10 @@ defmodule ATECC508A.MixProject do
       deps: deps(),
       dialyzer: [
         ignore_warnings: "dialyzer.ignore-warnings"
-      ]
+      ],
+      docs: [main: "readme", extras: ["README.md"]],
+      description: description(),
+      package: package()
     ]
   end
 
@@ -25,6 +28,17 @@ defmodule ATECC508A.MixProject do
   # Specifies which paths to compile per environment.
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
+
+  defp description do
+    "Elixir interface for the ATECC508A"
+  end
+
+  defp package do
+    [
+      licenses: ["Apache-2.0"],
+      links: %{"GitHub" => "https://github.com/nerves-hub/atecc508a"}
+    ]
+  end
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
