@@ -128,6 +128,23 @@ defmodule ATECC508A.Request do
   end
 
   @doc """
+  Lock a specific slot.
+  """
+  @spec lock_slot(Transport.t(), slot()) :: :ok | {:error, atom()}
+  def lock_slot(transport, slot) do
+    # Need to calculate the CRC of everything written in the zone to be
+    # locked for this to work.
+
+    # See Table 9-31 - Mode Encoding
+    mode = <<0::size(2), slot::size(4), 2::size(2)>>
+    payload = <<@atecc508a_op_lock, mode::binary, 0::size(16)>>
+
+    Transport.request(transport, payload, 35, 1)
+    |> interpret_result()
+    |> return_status()
+  end
+
+  @doc """
   Request a random number.
   """
   @spec random(Transport.t()) :: {:ok, binary()} | {:error, atom()}

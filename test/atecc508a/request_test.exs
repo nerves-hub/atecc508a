@@ -121,6 +121,17 @@ defmodule ATECC508A.RequestTest do
     assert Request.lock_zone(@mock_transport, :data, <<0xAA, 0x55>>) == :ok
   end
 
+  test "lock slots" do
+    ATECC508A.Transport.Mock
+    |> expect(:request, fn _, <<0x17, 0x02, 0, 0>>, 35, 1 -> {:ok, <<0>>} end)
+    |> expect(:request, fn _, <<0x17, 0x06, 0, 0>>, 35, 1 -> {:ok, <<0>>} end)
+    |> expect(:request, fn _, <<0x17, 0x3E, 0, 0>>, 35, 1 -> {:ok, <<0>>} end)
+
+    assert Request.lock_slot(@mock_transport, 0) == :ok
+    assert Request.lock_slot(@mock_transport, 1) == :ok
+    assert Request.lock_slot(@mock_transport, 15) == :ok
+  end
+
   test "genkey slot 0" do
     ATECC508A.Transport.Mock
     |> expect(:request, fn _, <<0x40, 4, 0, 0>>, 653, 64 -> {:ok, @test_data_64} end)
