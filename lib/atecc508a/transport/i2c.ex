@@ -19,8 +19,16 @@ defmodule ATECC508A.Transport.I2C do
     address = Keyword.get(args, :address, @default_atecc508a_address)
 
     case Circuits.I2C.open(bus_name) do
-      {:ok, i2c} -> {:ok, {__MODULE__, {i2c, address}}}
-      error -> error
+      {:ok, i2c} ->
+        # Issue a sleep command so that the device starts out in the sleep
+        # state even if some other code wakes it up. If this isn't done, we'll
+        # get out of sync with the sleep/wake state and end up getting confused
+        # when we don't get the expected wake response.
+        sleep(i2c, address)
+        {:ok, {__MODULE__, {i2c, address}}}
+
+      error ->
+        error
     end
   end
 
@@ -93,9 +101,15 @@ defmodule ATECC508A.Transport.I2C do
 
     # Check that it's awake by reading its signature
     case Circuits.I2C.read(i2c, address, 4) do
-      {:ok, @atecc508a_signature} -> :ok
-      {:ok, _something_else} -> {:error, :unexpected_wakeup_response}
-      error -> error
+      {:ok, @atecc508a_signature} ->
+        :ok
+
+      {:ok, something_else} ->
+        Logger.warn("Got an unexpected wakeup response: #{inspect(something_else)}")
+        {:error, :unexpected_wakeup_response}
+
+      error ->
+        error
     end
   end
 
