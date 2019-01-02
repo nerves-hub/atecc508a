@@ -38,7 +38,7 @@ defmodule ATECC508A.CertificateTest do
     manufacturing_sn = "1234"
 
     ecc508a_validity =
-      ATECC508A.Validity.create_compatible_validity(31)
+      ATECC508A.Validity.create_compatible_validity(30)
       |> ATECC508A.Validity.compress()
 
     cert_sn = ATECC508A.SerialNumber.from_device_sn(ecc508a_sn, ecc508a_validity)
