@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.1.2
+
+* Bug fixes
+  * Add support for generalized time to support certificates that expire after
+    12/31/2049.
+  * Force ATECC508A to sleep on init so that it's in a known state for the first
+    request
+
 ## v0.1.1
 
 * Enhancements / bug fixes
