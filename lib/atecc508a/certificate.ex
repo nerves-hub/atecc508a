@@ -12,7 +12,7 @@ defmodule ATECC508A.Certificate do
 
   @hash :sha256
   @curve :secp256r1
-  @validity_years 30
+  @validity_years 31
   @version :v3
   @era 2000
 
