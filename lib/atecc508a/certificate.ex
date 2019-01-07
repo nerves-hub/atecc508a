@@ -247,10 +247,10 @@ defmodule ATECC508A.Certificate do
 
   @spec compress_validity(X509.Certificate.Validity.t()) :: ATECC508A.encoded_dates()
   def compress_validity(valid_dates) do
-    X509.ASN1.validity(notBefore: {_, not_before_s}, notAfter: {_, not_after_s}) = valid_dates
+    X509.ASN1.validity(notBefore: nb, notAfter: na) = valid_dates
 
-    not_before = decode_generalized_time(to_string(not_before_s))
-    not_after = decode_generalized_time(to_string(not_after_s))
+    not_before = to_datetime(nb)
+    not_after = to_datetime(na)
     ATECC508A.Validity.compress(not_before, not_after)
   end
 
@@ -348,13 +348,35 @@ defmodule ATECC508A.Certificate do
     |> Template.new()
   end
 
-  defp decode_generalized_time(timestamp) do
+  defp to_datetime({:utcTime, timestamp}) do
     <<year::binary-unit(8)-size(2), month::binary-unit(8)-size(2), day::binary-unit(8)-size(2),
       hour::binary-unit(8)-size(2), minute::binary-unit(8)-size(2),
-      second::binary-unit(8)-size(2), "Z">> = timestamp
+      second::binary-unit(8)-size(2), "Z">> = to_string(timestamp)
 
     NaiveDateTime.new(
       String.to_integer(year) + @era,
+      String.to_integer(month),
+      String.to_integer(day),
+      String.to_integer(hour),
+      String.to_integer(minute),
+      String.to_integer(second)
+    )
+    |> case do
+      {:ok, naive_date_time} ->
+        DateTime.from_naive!(naive_date_time, "Etc/UTC")
+
+      error ->
+        error
+    end
+  end
+
+  defp to_datetime({:generalTime, timestamp}) do
+    <<year::binary-unit(8)-size(4), month::binary-unit(8)-size(2), day::binary-unit(8)-size(2),
+      hour::binary-unit(8)-size(2), minute::binary-unit(8)-size(2),
+      second::binary-unit(8)-size(2), "Z">> = to_string(timestamp)
+
+    NaiveDateTime.new(
+      String.to_integer(year),
       String.to_integer(month),
       String.to_integer(day),
       String.to_integer(hour),
