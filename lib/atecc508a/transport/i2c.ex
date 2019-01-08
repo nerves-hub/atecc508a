@@ -39,16 +39,21 @@ defmodule ATECC508A.Transport.I2C do
     to_send = package(payload)
     response_len = response_payload_len + 3
 
-    with :ok <- wakeup(i2c, address),
-         Logger.debug("ATECC508A: Sending #{inspect(to_send, binaries: :as_binaries)}"),
-         :ok <- Circuits.I2C.write(i2c, address, to_send),
-         Logger.debug("ATECC508A: Waiting #{timeout} ms"),
-         Process.sleep(timeout),
-         {:ok, response} <- Circuits.I2C.read(i2c, address, response_len),
-         Logger.info("ATECC508A: Received #{inspect(response, binaries: :as_binaries)}"),
-         sleep(i2c, address) do
-      unpackage(response)
-    end
+    rc =
+      with :ok <- wakeup(i2c, address),
+           Logger.debug("ATECC508A: Sending #{inspect(to_send, binaries: :as_binaries)}"),
+           :ok <- Circuits.I2C.write(i2c, address, to_send),
+           Logger.debug("ATECC508A: Waiting #{timeout} ms"),
+           Process.sleep(timeout),
+           {:ok, response} <- Circuits.I2C.read(i2c, address, response_len),
+           Logger.info("ATECC508A: Received #{inspect(response, binaries: :as_binaries)}") do
+        unpackage(response)
+      end
+
+    # Always sleep after a request even if it fails so that the processor is in
+    # a known state for the next call.
+    sleep(i2c, address)
+    rc
   end
 
   @doc """
@@ -87,7 +92,13 @@ defmodule ATECC508A.Transport.I2C do
     end
   end
 
-  defp wakeup(i2c, address) do
+  defp wakeup(i2c, address, retries \\ 1)
+
+  defp wakeup(_i2c, _address, 0) do
+    {:error, :unexpected_wakeup_response}
+  end
+
+  defp wakeup(i2c, address, retries) do
     # See ATECC508A 6.1 for the wakeup sequence.
     #
     # Write to address 0 to pull SDA down for the wakeup interval (60 uS).
@@ -105,8 +116,11 @@ defmodule ATECC508A.Transport.I2C do
         :ok
 
       {:ok, something_else} ->
-        Logger.warn("Got an unexpected wakeup response: #{inspect(something_else)}")
-        {:error, :unexpected_wakeup_response}
+        sleep(i2c, address)
+
+        Logger.warn("Unexpected wakeup response: #{inspect(something_else)}. Retrying.")
+
+        wakeup(i2c, address, retries - 1)
 
       error ->
         error
