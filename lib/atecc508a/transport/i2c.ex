@@ -41,16 +41,20 @@ defmodule ATECC508A.Transport.I2C do
 
     rc =
       with :ok <- wakeup(i2c, address),
-           Logger.debug("ATECC508A: Sending #{inspect(to_send, binaries: :as_binaries)}"),
            :ok <- Circuits.I2C.write(i2c, address, to_send),
-           Logger.debug("ATECC508A: Waiting #{timeout} ms"),
            Process.sleep(timeout),
-           {:ok, response} <- Circuits.I2C.read(i2c, address, response_len),
-           Logger.info("ATECC508A: Received #{inspect(response, binaries: :as_binaries)}") do
+           {:ok, response} <- Circuits.I2C.read(i2c, address, response_len) do
         unpackage(response)
+      else
+        error ->
+          Logger.error(
+            "ATECC508A: Request failed. #{inspect(to_send, binaries: :as_binaries)}, #{timeout} ms"
+          )
+
+          error
       end
 
-    # Always sleep after a request even if it fails so that the processor is in
+    # Always send a sleep after a request even if it fails so that the processor is in
     # a known state for the next call.
     sleep(i2c, address)
     rc
