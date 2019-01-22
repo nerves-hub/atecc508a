@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.1.3
+
+* Enhancements
+  * Reduce debug logging
+
 ## v0.1.2
 
 * Bug fixes
