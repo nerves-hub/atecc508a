@@ -16,12 +16,26 @@ defmodule ATECC508A.Transport do
 
   @callback detected?(arg :: any) :: boolean()
 
+  @doc """
+  Send a request to the ATECC508A and wait for a response
+
+  This is the raw request. The transport implementation takes care of adding
+  and removing CRCs.
+  """
   @spec request(t(), binary(), non_neg_integer(), non_neg_integer()) ::
           {:ok, binary()} | {:error, atom()}
   def request({mod, arg}, payload, timeout, response_payload_len) do
     mod.request(arg, payload, timeout, response_payload_len)
   end
 
+  @doc """
+  Check whether the ATECC508A is present
+
+  The transport implementation should do the minimum work to figure out whether
+  an ATECC508A is actually present. This is called by users who are unsure
+  whether the device has an ATECC508A and want to check before sending requests
+  to it.
+  """
   @spec detected?(t()) :: boolean()
   def detected?({mod, arg}) do
     mod.detected?(arg)
