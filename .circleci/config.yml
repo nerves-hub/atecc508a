@@ -1,11 +1,4 @@
-
-defaults: &defaults
-  working_directory: ~/repo
-  docker:
-    - image: erlang:21.1
-  environment:
-    ELIXIR_VERSION: 1.7.4-otp-21
-    LC_ALL: C.UTF-8
+version: 2
 
 install_elixir: &install_elixir
   run:
@@ -29,10 +22,16 @@ install_system_deps: &install_system_deps
       apt update
       apt install -y unzip
 
-version: 2
+defaults: &defaults
+  working_directory: ~/repo
 
 jobs:
-  test_elixir_1_7_otp_21:
+  build_elixir_1_8_otp_21:
+    docker:
+      - image: erlang:21.2
+        environment:
+          ELIXIR_VERSION: 1.8.1-otp-21
+          LC_ALL: C.UTF-8
     <<: *defaults
     steps:
       - checkout
@@ -54,9 +53,27 @@ jobs:
             - _build
             - deps
 
+  build_elixir_1_7_otp_21:
+    docker:
+      - image: erlang:21.1
+        environment:
+          ELIXIR_VERSION: 1.7.4-otp-21
+          LC_ALL: C.UTF-8
+          SUDO: true
+    <<: *defaults
+    steps:
+      - checkout
+      - <<: *install_system_deps
+      - <<: *install_elixir
+      - <<: *install_hex_rebar
+      - run: mix deps.get
+      - run: mix test
+
 workflows:
   version: 2
   build_test:
     jobs:
-      - test_elixir_1_7_otp_21:
+      - build_elixir_1_8_otp_21:
+          context: org-global
+      - build_elixir_1_7_otp_21:
           context: org-global
