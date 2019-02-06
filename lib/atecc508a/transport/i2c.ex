@@ -61,6 +61,22 @@ defmodule ATECC508A.Transport.I2C do
   end
 
   @doc """
+  Detects if an ATECC508A is available at the address
+  """
+  @impl Transport
+  @spec detected?(instance()) :: boolean()
+  def detected?({i2c, address}) do
+    case wakeup(i2c, address) do
+      :ok ->
+        sleep(i2c, address)
+        true
+
+      _ ->
+        false
+    end
+  end
+
+  @doc """
   Package up a request for transmission over I2C
   """
   @spec package(binary()) :: iodata()

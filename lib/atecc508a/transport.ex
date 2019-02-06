@@ -14,9 +14,16 @@ defmodule ATECC508A.Transport do
               response_payload_len :: non_neg_integer()
             ) :: {:ok, binary()} | {:error, atom()}
 
+  @callback detected?(arg :: any) :: boolean()
+
   @spec request(t(), binary(), non_neg_integer(), non_neg_integer()) ::
           {:ok, binary()} | {:error, atom()}
   def request({mod, arg}, payload, timeout, response_payload_len) do
     mod.request(arg, payload, timeout, response_payload_len)
+  end
+
+  @spec detected?(t()) :: boolean()
+  def detected?({mod, arg}) do
+    mod.detected?(arg)
   end
 end
