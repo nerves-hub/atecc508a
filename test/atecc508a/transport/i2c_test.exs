@@ -1,4 +1,4 @@
-defmodule ATECC508A.I2CTransportTest do
+defmodule ATECC508A.Transport.I2CTest do
   use ExUnit.Case
 
   alias ATECC508A.Transport.I2CServer
