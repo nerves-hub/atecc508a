@@ -2,6 +2,8 @@ defmodule ATECC508A.Transport.I2CServer do
   use GenServer
   require Logger
 
+  alias ATECC508A.Transport.Cache
+
   @moduledoc false
 
   # 1.5 ms in the datasheet
@@ -35,7 +37,7 @@ defmodule ATECC508A.Transport.I2CServer do
   def init([bus_name, address]) do
     {:ok, i2c} = Circuits.I2C.open(bus_name)
 
-    state = %{i2c: i2c, address: address}
+    state = %{i2c: i2c, address: address, cache: Cache.init()}
     {:ok, state, {:continue, :start_asleep}}
   end
 
@@ -64,28 +66,20 @@ defmodule ATECC508A.Transport.I2CServer do
 
   @impl true
   def handle_call({:request, payload, timeout, response_payload_len}, _from, state) do
-    to_send = package(payload)
-    response_len = response_payload_len + 3
+    case Cache.get(state.cache, payload) do
+      nil ->
+        case make_request(state, payload, timeout, response_payload_len) do
+          {:ok, _message} = rc ->
+            new_cache = Cache.put(state.cache, payload, rc)
+            {:reply, rc, %{state | cache: new_cache}}
 
-    rc =
-      with :ok <- wakeup(state.i2c, state.address),
-           :ok <- Circuits.I2C.write(state.i2c, state.address, to_send),
-           Process.sleep(timeout),
-           {:ok, response} <- Circuits.I2C.read(state.i2c, state.address, response_len) do
-        unpackage(response)
-      else
-        error ->
-          Logger.error(
-            "ATECC508A: Request failed. #{inspect(to_send, binaries: :as_binaries)}, #{timeout} ms"
-          )
+          error ->
+            {:reply, error, state}
+        end
 
-          error
-      end
-
-    # Always send a sleep after a request even if it fails so that the processor is in
-    # a known state for the next call.
-    sleep(state.i2c, state.address)
-    {:reply, rc, state}
+      response ->
+        {:reply, response, state}
+    end
   end
 
   @doc """
@@ -110,6 +104,37 @@ defmodule ATECC508A.Transport.I2CServer do
       {:error, reason} -> {:error, reason}
       _ -> {:error, :bad_crc}
     end
+  end
+
+  defp make_request(state, payload, timeout, response_payload_len) do
+    to_send = package(payload)
+    response_len = response_payload_len + 3
+
+    min_timeout = round(timeout / 2)
+
+    rc =
+      with :ok <- wakeup(state.i2c, state.address),
+           :ok <- Circuits.I2C.write(state.i2c, state.address, to_send),
+           Process.sleep(min_timeout),
+           {:ok, response} <-
+             poll_read(state.i2c, state.address, response_len, min_timeout, timeout) do
+        unpackage(response)
+      else
+        error ->
+          Logger.error(
+            "ATECC508A: Request failed: #{inspect(to_send, binaries: :as_binaries)}, #{timeout} ms -> #{
+              inspect(error)
+            }"
+          )
+
+          error
+      end
+
+    # Always send a sleep after a request even if it fails so that the processor is in
+    # a known state for the next call.
+    sleep(state.i2c, state.address)
+
+    rc
   end
 
   defp extract_payload(payload_length, payload_and_crc) do
