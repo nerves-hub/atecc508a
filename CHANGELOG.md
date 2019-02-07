@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.2.0
+
+* New features
+  * Requests are serialized to each ATECC508A/608A through a dedicated
+    GenServer. Two or more users of the library will no longer collide with each
+    other on the same chip.
+  * Command completion polling. This shortens the wait time for commands with
+    long worst case completion times.
+  * Response caching. A trivial response cache was implemented that removes the
+    need to query the device for duplicate read requests. It's invalidate on any
+    write or unknown command. It works well for the intended use cases of
+    read-only use of the device normally and mostly write-only use when
+    provisioning.
+  * Added `ATECC508A.Transport.detected?/1` to poll whether an ATECC508A is
+    present.
+
 ## v0.1.3
 
 * Enhancements
