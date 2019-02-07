@@ -7,6 +7,7 @@ defmodule ATECC508A.Transport.I2CServer do
   # 1.5 ms in the datasheet
   @atecc508a_wake_delay_ms 2
   @atecc508a_signature <<0x04, 0x11, 0x33, 0x43>>
+  @atecc508a_poll_interval_ms 2
 
   @spec start_link(keyword()) :: :ignore | {:error, any()} | {:ok, pid()}
   def start_link([bus_name, address, process_name]) do
@@ -161,5 +162,25 @@ defmodule ATECC508A.Transport.I2CServer do
   defp sleep(i2c, address) do
     # See ATECC508A 6.2 for the sleep sequence.
     Circuits.I2C.write(i2c, address, <<0x01>>)
+  end
+
+  defp poll_read(i2c, address, response_len, timeout, max_timeout) do
+    case Circuits.I2C.read(i2c, address, response_len) do
+      {:ok, _} = response ->
+        response
+
+      {:error, :i2c_nak} ->
+        new_timeout = timeout + @atecc508a_poll_interval_ms
+
+        if new_timeout < max_timeout do
+          Process.sleep(@atecc508a_poll_interval_ms)
+          poll_read(i2c, address, response_len, new_timeout, max_timeout)
+        else
+          {:error, :timeout}
+        end
+
+      other_error ->
+        other_error
+    end
   end
 end
