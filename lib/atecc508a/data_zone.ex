@@ -43,8 +43,9 @@ defmodule ATECC508A.DataZone do
   @doc """
   Write a slot in the data zone.
 
-  This uses 4 byte writes. These are only allowed under some conditions.
-  Most notably, 4-byte writes aren't allowed when the data zone is UNLOCKED.
+  This can use 4 byte writes if the data is not a multiple of 32 bytes. These
+  are only allowed under some conditions.  Most notably, 4-byte writes aren't
+  allowed when the data zone is UNLOCKED.
   """
   @spec write(Transport.t(), Request.slot(), binary()) :: :ok | {:error, atom()}
   def write(transport, slot, data) do
