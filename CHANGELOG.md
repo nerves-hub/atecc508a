@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.1
+
+* New features
+  * Added `ATECC508A.Transport.info/1` to get information about a previously
+    created transport.
+
 ## v0.2.0
 
 * New features
