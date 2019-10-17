@@ -1,10 +1,13 @@
 defmodule ATECC508A.MixProject do
   use Mix.Project
 
+  @version "0.2.0"
+  @source_url "https://github.com/nerves-hub/atecc508a"
+
   def project do
     [
       app: :atecc508a,
-      version: "0.2.0",
+      version: @version,
       elixir: "~> 1.7",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
@@ -12,13 +15,13 @@ defmodule ATECC508A.MixProject do
       dialyzer: [
         ignore_warnings: "dialyzer.ignore-warnings"
       ],
-      docs: [main: "readme", extras: ["README.md"]],
+      docs: docs(),
       description: description(),
-      package: package()
+      package: package(),
+      source_url: @source_url
     ]
   end
 
-  # Run "mix help compile.app" to learn about applications.
   def application do
     [
       extra_applications: [:logger],
@@ -37,18 +40,26 @@ defmodule ATECC508A.MixProject do
   defp package do
     [
       licenses: ["Apache-2.0"],
-      links: %{"GitHub" => "https://github.com/nerves-hub/atecc508a"}
+      links: %{"GitHub" => @source_url}
     ]
   end
 
-  # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
       {:x509, "~> 0.5.1 or ~> 0.6"},
       {:circuits_i2c, "~> 0.2"},
       {:ex_doc, "~> 0.11", only: :dev, runtime: false},
-      {:dialyxir, "1.0.0-rc.4", only: :dev, runtime: false},
+      {:dialyxir, "~> 1.0.0-rc.7", only: :dev, runtime: false},
       {:mox, "~> 0.4", only: :test}
+    ]
+  end
+
+  defp docs do
+    [
+      extras: ["README.md"],
+      main: "readme",
+      source_ref: "v#{@version}",
+      source_url: @source_url
     ]
   end
 end
