@@ -47,7 +47,7 @@ defmodule ATECC508A.Transport.I2CServer do
     # state even if some other code wakes it up. If this isn't done, we'll
     # get out of sync with the sleep/wake state and end up getting confused
     # when we don't get the expected wake response.
-    sleep(state.i2c, state.address)
+    _ = sleep(state.i2c, state.address)
 
     {:noreply, state}
   end
@@ -56,7 +56,7 @@ defmodule ATECC508A.Transport.I2CServer do
   def handle_call(:detected?, _from, state) do
     case wakeup(state.i2c, state.address) do
       :ok ->
-        sleep(state.i2c, state.address)
+        _ = sleep(state.i2c, state.address)
         {:reply, true, state}
 
       _ ->
@@ -121,18 +121,19 @@ defmodule ATECC508A.Transport.I2CServer do
         unpackage(response)
       else
         error ->
-          Logger.error(
-            "ATECC508A: Request failed: #{inspect(to_send, binaries: :as_binaries)}, #{timeout} ms -> #{
-              inspect(error)
-            }"
-          )
+          _ =
+            Logger.error(
+              "ATECC508A: Request failed: #{inspect(to_send, binaries: :as_binaries)}, #{timeout} ms -> #{
+                inspect(error)
+              }"
+            )
 
           error
       end
 
     # Always send a sleep after a request even if it fails so that the processor is in
     # a known state for the next call.
-    sleep(state.i2c, state.address)
+    _ = sleep(state.i2c, state.address)
 
     rc
   end
@@ -162,7 +163,7 @@ defmodule ATECC508A.Transport.I2CServer do
     # Since only 8-bits get through, the I2C speed needs to be < 133 KHz for
     # this to work. This "fails" since nobody will ACK the write and that's
     # expected.
-    Circuits.I2C.write(i2c, 0, <<0>>)
+    _ = Circuits.I2C.write(i2c, 0, <<0>>)
 
     # Wait for the device to wake up for real
     Process.sleep(@atecc508a_wake_delay_ms)
@@ -173,9 +174,9 @@ defmodule ATECC508A.Transport.I2CServer do
         :ok
 
       {:ok, something_else} ->
-        sleep(i2c, address)
+        _ = sleep(i2c, address)
 
-        Logger.warn("Unexpected wakeup response: #{inspect(something_else)}. Retrying.")
+        _ = Logger.warn("Unexpected wakeup response: #{inspect(something_else)}. Retrying.")
 
         wakeup(i2c, address, retries - 1)
 
