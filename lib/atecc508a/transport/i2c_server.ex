@@ -17,7 +17,7 @@ defmodule ATECC508A.Transport.I2CServer do
   end
 
   @doc """
-  Returns true if an ATECC508A is present
+  Returns true if an ATECC508A/608A is present
   """
   @spec detected?(GenServer.server()) :: boolean()
   def detected?(server) do
@@ -25,7 +25,7 @@ defmodule ATECC508A.Transport.I2CServer do
   end
 
   @doc """
-  Send a request to the ATECC508A
+  Send a request to the ATECC508A/608A
   """
   @spec request(GenServer.server(), binary(), non_neg_integer(), non_neg_integer()) ::
           {:error, atom()} | {:ok, binary()}
