@@ -33,11 +33,19 @@ defmodule ATECC508A.Transport.I2CServer do
     GenServer.call(server, {:request, payload, timeout, response_payload_len})
   end
 
+  @doc """
+  Returns information about the transport
+  """
+  @spec info(GenServer.server()) :: map()
+  def info(server) do
+    GenServer.call(server, :info)
+  end
+
   @impl true
   def init([bus_name, address]) do
     {:ok, i2c} = Circuits.I2C.open(bus_name)
 
-    state = %{i2c: i2c, address: address, cache: Cache.init()}
+    state = %{i2c: i2c, bus_name: bus_name, address: address, cache: Cache.init()}
     {:ok, state, {:continue, :start_asleep}}
   end
 
@@ -80,6 +88,12 @@ defmodule ATECC508A.Transport.I2CServer do
       response ->
         {:reply, response, state}
     end
+  end
+
+  @impl true
+  def handle_call(:info, _from, state) do
+    info = %{type: ATECC508A.Transport.I2C, bus_name: state.bus_name, address: state.address}
+    {:reply, info, state}
   end
 
   @doc """

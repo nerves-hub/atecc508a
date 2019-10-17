@@ -62,6 +62,10 @@ defmodule ATECC508A.Transport.I2C do
   defdelegate request(instance, payload, timeout, response_payload_len),
     to: ATECC508A.Transport.I2CServer
 
+  @impl Transport
+  @spec info(instance()) :: map()
+  defdelegate info(instance), to: ATECC508A.Transport.I2CServer
+
   defp process_name(bus_name, address) do
     Module.concat([ATECC508A.Transport.I2C, bus_name, to_string(address)])
   end

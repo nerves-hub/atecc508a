@@ -16,6 +16,8 @@ defmodule ATECC508A.Transport do
 
   @callback detected?(arg :: any) :: boolean()
 
+  @callback info(id :: any()) :: map()
+
   @doc """
   Send a request to the ATECC508A and wait for a response
 
@@ -39,5 +41,15 @@ defmodule ATECC508A.Transport do
   @spec detected?(t()) :: boolean()
   def detected?({mod, arg}) do
     mod.detected?(arg)
+  end
+
+  @doc """
+  Return information about this transport
+
+  This information is specific to this transport. No fields are required.
+  """
+  @spec info(t()) :: map()
+  def info({mod, arg}) do
+    mod.info(arg)
   end
 end
