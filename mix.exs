@@ -50,7 +50,7 @@ defmodule ATECC508A.MixProject do
       {:x509, "~> 0.5.1 or ~> 0.6"},
       {:circuits_i2c, "~> 0.2"},
       {:ex_doc, "~> 0.11", only: :dev, runtime: false},
-      {:dialyxir, "~> 1.0.0-rc.7", only: :dev, runtime: false},
+      {:dialyxir, "~> 1.0.0", only: :dev, runtime: false},
       {:mox, "~> 0.4", only: :test}
     ]
   end
