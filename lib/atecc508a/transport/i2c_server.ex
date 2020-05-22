@@ -190,7 +190,7 @@ defmodule ATECC508A.Transport.I2CServer do
       {:ok, something_else} ->
         _ = sleep(i2c, address)
 
-        _ = Logger.warn("Unexpected wakeup response: #{inspect(something_else)}. Retrying.")
+        Logger.warn("Unexpected wakeup response: #{inspect(something_else)}. Retrying.")
 
         wakeup(i2c, address, retries - 1)
 
