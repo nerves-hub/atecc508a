@@ -10,6 +10,8 @@ defmodule ATECC508A.Transport.I2CServer do
   @atecc508a_wake_delay_ms 2
   @atecc508a_signature <<0x04, 0x11, 0x33, 0x43>>
   @atecc508a_poll_interval_ms 2
+  @atecc508a_retry_wakeup_ms 500
+  @atecc508a_default_wakeup_retries 4
 
   @spec start_link(keyword()) :: :ignore | {:error, any()} | {:ok, pid()}
   def start_link([bus_name, address, process_name]) do
@@ -164,7 +166,7 @@ defmodule ATECC508A.Transport.I2CServer do
     end
   end
 
-  defp wakeup(i2c, address, retries \\ 1)
+  defp wakeup(i2c, address, retries \\ @atecc508a_default_wakeup_retries)
 
   defp wakeup(_i2c, _address, 0) do
     {:error, :unexpected_wakeup_response}
@@ -188,10 +190,12 @@ defmodule ATECC508A.Transport.I2CServer do
         :ok
 
       {:ok, something_else} ->
+        Logger.warn(
+          "Unexpected wakeup response: #{inspect(something_else)}. #{retries - 1} retries remaining."
+        )
+
+        Process.sleep(@atecc508a_retry_wakeup_ms)
         _ = sleep(i2c, address)
-
-        Logger.warn("Unexpected wakeup response: #{inspect(something_else)}. Retrying.")
-
         wakeup(i2c, address, retries - 1)
 
       error ->
