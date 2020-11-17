@@ -19,7 +19,12 @@ defmodule ATECC508A.MixProject do
       docs: docs(),
       description: description(),
       package: package(),
-      source_url: @source_url
+      source_url: @source_url,
+      preferred_cli_env: %{
+        docs: :docs,
+        "hex.publish": :docs,
+        "hex.build": :docs
+      }
     ]
   end
 
@@ -49,7 +54,7 @@ defmodule ATECC508A.MixProject do
     [
       {:x509, "~> 0.5.1 or ~> 0.6"},
       {:circuits_i2c, "~> 0.2"},
-      {:ex_doc, "~> 0.11", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.22", only: :docs, runtime: false},
       {:dialyxir, "~> 1.0.0", only: :dev, runtime: false},
       {:mox, "~> 1.0", only: :test}
     ]
