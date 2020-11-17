@@ -218,7 +218,7 @@ defmodule ATECC508A.Certificate do
   @doc """
   Compress an X.509 signature into the raw format expected on the ECC508A
   """
-  @spec compress_signature(binary()) :: <<_::512>>
+  @spec compress_signature(<<_::512>>) :: <<_::512>>
   def compress_signature(signature) do
     <<0x30, _len, 0x02, r_len, r::signed-unit(8)-size(r_len), 0x02, s_len,
       s::signed-unit(8)-size(s_len)>> = signature
@@ -229,7 +229,7 @@ defmodule ATECC508A.Certificate do
   @doc """
   Decompress an ECC508A signature into X.509 form.
   """
-  @spec decompress_signature(<<_::512>>) :: binary()
+  @spec decompress_signature(<<_::512>>) :: <<_::512>>
   def decompress_signature(<<r::binary-size(32), s::binary-size(32)>>) do
     r = unsigned_to_signed_bin(r)
     s = unsigned_to_signed_bin(s)

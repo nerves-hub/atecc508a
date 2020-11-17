@@ -99,7 +99,7 @@ defmodule ATECC508A.Transport.I2CServer do
   @doc """
   Package up a request for transmission over I2C
   """
-  @spec package(binary()) :: iodata()
+  @spec package(binary()) :: iolist()
   def package(request) do
     len = byte_size(request) + 3
     crc = ATECC508A.CRC.crc(<<len, request::binary>>)

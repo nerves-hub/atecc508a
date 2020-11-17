@@ -32,7 +32,7 @@ defmodule ATECC508A.Configuration do
   @type t :: %__MODULE__{
           serial_number: binary(),
           rev_num: atom() | binary(),
-          i2c_address: non_neg_integer(),
+          i2c_address: Circuits.I2C.address(),
           otp_mode: non_neg_integer(),
           chip_mode: non_neg_integer(),
           slot_config: <<_::256>>,
