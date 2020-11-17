@@ -143,7 +143,7 @@ defmodule ATECC508A.DataZone do
   @doc """
   Return the size in bytes of the specified slot.
   """
-  @spec slot_size(Request.slot()) :: pos_integer()
+  @spec slot_size(Request.slot()) :: 36 | 72 | 416
   def slot_size(0), do: 36
   def slot_size(1), do: 36
   def slot_size(2), do: 36
