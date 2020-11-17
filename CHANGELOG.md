@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.2.2
+
+* Bug fixes
+  * Retry if waking up the ATECC doesn't work. The current logic retries 4 times
+    with a short pause between retries. This works around some transients and
+    reduces unnecessary GenServer crash/restarts.
+
 ## v0.2.1
 
 * New features

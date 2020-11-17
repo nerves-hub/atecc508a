@@ -18,7 +18,7 @@ in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:atecc508a, "~> 0.2.1"}
+    {:atecc508a, "~> 0.2.2"}
   ]
 end
 ```
