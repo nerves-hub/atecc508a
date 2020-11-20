@@ -37,7 +37,7 @@ defmodule ATECC508A.Certificate do
           :public_key.ec_private_key()
         ) :: X509.Certificate.t()
   def new_device(atecc508a_public_key, atecc508a_sn, manufacturer_sn, signer, signer_key) do
-    byte_size(manufacturer_sn) <= 16 || raise "Manufacturer serial number too long"
+    byte_size(manufacturer_sn) <= 48 || raise "Manufacturer serial number too long"
     subject_rdn = "/CN=" <> manufacturer_sn
 
     {not_before_dt, not_after_dt} = ATECC508A.Validity.create_compatible_validity(@validity_years)
