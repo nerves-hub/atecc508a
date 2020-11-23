@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.3
+
+* Bug fixes
+  * Update serial number check to support the longer serial numbers that can be
+    made by `nerves_key`.
+
 ## v0.2.2
 
 * Bug fixes
