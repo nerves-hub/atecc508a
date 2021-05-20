@@ -139,9 +139,7 @@ defmodule ATECC508A.Transport.I2CServer do
         error ->
           _ =
             Logger.error(
-              "ATECC508A: Request failed: #{inspect(to_send, binaries: :as_binaries)}, #{timeout} ms -> #{
-                inspect(error)
-              }"
+              "ATECC508A: Request failed: #{inspect(to_send, binaries: :as_binaries)}, #{timeout} ms -> #{inspect(error)}"
             )
 
           error
