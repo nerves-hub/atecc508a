@@ -15,9 +15,11 @@ defmodule ATECC508A.CRC do
     <<crc::little-16>>
   end
 
-  defp shift(crc, 0) when crc >= 0x8000, do: (crc <<< 1) ^^^ (@atecc508a_polynomial + 0x10000)
-  defp shift(crc, 1) when crc < 0x8000, do: (crc <<< 1) ^^^ @atecc508a_polynomial
-  defp shift(crc, 1) when crc >= 0x8000, do: (crc <<< 1) ^^^ 0x10000
+  defp shift(crc, 0) when crc >= 0x8000,
+    do: Bitwise.bxor(crc <<< 1, @atecc508a_polynomial + 0x10000)
+
+  defp shift(crc, 1) when crc < 0x8000, do: Bitwise.bxor(crc <<< 1, @atecc508a_polynomial)
+  defp shift(crc, 1) when crc >= 0x8000, do: Bitwise.bxor(crc <<< 1, 0x10000)
   defp shift(crc, 0) when crc < 0x8000, do: crc <<< 1
 
   defp do_crc(crc, <<>>), do: crc
