@@ -14,7 +14,7 @@ defmodule ATECC508A.MixProject do
       deps: deps(),
       dialyzer: [
         flags: [:unmatched_returns, :error_handling, :race_conditions],
-        ignore_warnings: "dialyzer.ignore-warnings"
+        ignore_warnings: ".dialyzer_ignore.exs"
       ],
       docs: docs(),
       description: description(),
