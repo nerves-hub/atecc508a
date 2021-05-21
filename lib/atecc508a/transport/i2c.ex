@@ -63,6 +63,11 @@ defmodule ATECC508A.Transport.I2C do
     to: ATECC508A.Transport.I2CServer
 
   @impl Transport
+  @spec transaction(instance(), (fun() -> {:ok, any()} | {:error, atom()})) ::
+          {:ok, any()} | {:error, atom()}
+  defdelegate transaction(instance, callback), to: ATECC508A.Transport.I2CServer
+
+  @impl Transport
   @spec info(instance()) :: map()
   defdelegate info(instance), to: ATECC508A.Transport.I2CServer
 
