@@ -14,6 +14,11 @@ defmodule ATECC508A.Transport do
               response_payload_len :: non_neg_integer()
             ) :: {:ok, binary()} | {:error, atom()}
 
+  @callback transaction(
+              id :: any(),
+              callback :: (request :: fun() -> {:ok, any()} | {:error, atom()})
+            ) :: {:ok, any()} | {:error, atom()}
+
   @callback detected?(arg :: any) :: boolean()
 
   @callback info(id :: any()) :: map()
@@ -28,6 +33,41 @@ defmodule ATECC508A.Transport do
           {:ok, binary()} | {:error, atom()}
   def request({mod, arg}, payload, timeout, response_payload_len) do
     mod.request(arg, payload, timeout, response_payload_len)
+  end
+
+  @doc """
+  Run a callback function inside a transaction that doesn't sleep
+
+  Use a transaction when multiple requests need to be sent without putting the
+  chip to sleep. For example, when a value needs to be stored in SRAM and then
+  acted on, since sleeping will clear the SRAM.
+
+  `callback` is a function that provides one argument, `request`, and expects a
+  return value of `{:ok, data}` or `{:error, reason}`. `request` is an anonymous
+  function whose args follow the public function `ATECC508A.Transport.request/4`,
+  except without the first arg (`t()`) since this is provided to `transaction`.
+
+  The success/error tuple returned by the callback function is returned
+  by `transaction`.
+
+  ## Example
+
+  ```ex
+  {:ok, transport} = ATECC508A.Transport.I2C.init()
+
+  {:ok, signature} =
+    ATECC508A.Transport.transaction(transport, fn request ->
+      # NONCE command (0x16)
+      {:ok, <<0>>} = request.(<<0x16, 0x43, 0, 0, signature_digest::binary>>, 29, 1)
+      # SIGN command (0x41)
+      request.(<<0x41, 0xA0, 0, 0>>, 115, 64)
+    end)
+  ```
+  """
+  @spec transaction(t(), (fun() -> {:ok, any()} | {:error, atom()})) ::
+          {:ok, any()} | {:error, atom()}
+  def transaction({mod, arg}, callback) do
+    mod.transaction(arg, callback)
   end
 
   @doc """

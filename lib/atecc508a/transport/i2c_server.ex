@@ -36,6 +36,15 @@ defmodule ATECC508A.Transport.I2CServer do
   end
 
   @doc """
+  Run the callback function inside a transaction that doesn't sleep
+  """
+  @spec transaction(GenServer.server(), (fun() -> {:ok, any()} | {:error, atom()})) ::
+          {:ok, any()} | {:error, atom()}
+  def transaction(server, callback) do
+    GenServer.call(server, {:transaction, callback})
+  end
+
+  @doc """
   Returns information about the transport
   """
   @spec info(GenServer.server()) :: map()
@@ -45,9 +54,10 @@ defmodule ATECC508A.Transport.I2CServer do
 
   @impl true
   def init([bus_name, address]) do
+    {:ok, cache} = Cache.start_link()
     {:ok, i2c} = Circuits.I2C.open(bus_name)
 
-    state = %{i2c: i2c, bus_name: bus_name, address: address, cache: Cache.init()}
+    state = %{i2c: i2c, bus_name: bus_name, address: address, cache: cache}
     {:ok, state, {:continue, :start_asleep}}
   end
 
@@ -76,20 +86,18 @@ defmodule ATECC508A.Transport.I2CServer do
 
   @impl true
   def handle_call({:request, payload, timeout, response_payload_len}, _from, state) do
-    case Cache.get(state.cache, payload) do
-      nil ->
-        case make_request(state, payload, timeout, response_payload_len) do
-          {:ok, _message} = rc ->
-            new_cache = Cache.put(state.cache, payload, rc)
-            {:reply, rc, %{state | cache: new_cache}}
+    response =
+      do_transaction(state.i2c, state.address, state.cache, fn request ->
+        request.(payload, timeout, response_payload_len)
+      end)
 
-          error ->
-            {:reply, error, state}
-        end
+    {:reply, response, state}
+  end
 
-      response ->
-        {:reply, response, state}
-    end
+  @impl true
+  def handle_call({:transaction, callback}, _from, state) do
+    response = do_transaction(state.i2c, state.address, state.cache, callback)
+    {:reply, response, state}
   end
 
   @impl true
@@ -122,18 +130,59 @@ defmodule ATECC508A.Transport.I2CServer do
     end
   end
 
-  defp make_request(state, payload, timeout, response_payload_len) do
+  defp do_transaction(i2c, address, cache, callback) do
+    rc =
+      case wakeup(i2c, address) do
+        :ok ->
+          request_fn = fn payload, timeout, response_payload_len ->
+            make_cached_request(payload, timeout, response_payload_len, i2c, address, cache)
+          end
+
+          case callback.(request_fn) do
+            {:ok, _data} = response -> response
+            {:error, _reason} = error -> error
+          end
+
+        error ->
+          _ = Logger.error("ATECC508A: Transaction failed: #{inspect(error)}")
+          error
+      end
+
+    # Always send a sleep after a request even if it fails so that the processor is in
+    # a known state for the next call.
+    _ = sleep(i2c, address)
+
+    rc
+  end
+
+  defp make_cached_request(payload, timeout, response_payload_len, i2c, address, cache) do
+    case Cache.get(cache, payload) do
+      nil ->
+        case make_request(payload, timeout, response_payload_len, i2c, address) do
+          {:ok, _message} = rc ->
+            Cache.put(cache, payload, rc)
+            rc
+
+          error ->
+            error
+        end
+
+      response ->
+        response
+    end
+  end
+
+  defp make_request(payload, timeout, response_payload_len, i2c, address) do
     to_send = package(payload)
     response_len = response_payload_len + 3
 
     min_timeout = round(timeout / 2)
 
     rc =
-      with :ok <- wakeup(state.i2c, state.address),
-           :ok <- Circuits.I2C.write(state.i2c, state.address, to_send),
+      with :ok <- Circuits.I2C.write(i2c, address, to_send),
            Process.sleep(min_timeout),
            {:ok, response} <-
-             poll_read(state.i2c, state.address, response_len, min_timeout, timeout) do
+             poll_read(i2c, address, response_len, min_timeout, timeout) do
         unpackage(response)
       else
         error ->
@@ -144,10 +193,6 @@ defmodule ATECC508A.Transport.I2CServer do
 
           error
       end
-
-    # Always send a sleep after a request even if it fails so that the processor is in
-    # a known state for the next call.
-    _ = sleep(state.i2c, state.address)
 
     rc
   end
