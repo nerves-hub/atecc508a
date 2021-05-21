@@ -22,9 +22,11 @@ defmodule ATECC508A.Request do
 
   @atecc508a_op_read 0x02
   @atecc508a_op_write 0x12
+  @atecc508a_op_nonce 0x16
   @atecc508a_op_genkey 0x40
   @atecc508a_op_lock 0x17
   @atecc508a_op_random 0x1B
+  @atecc508a_op_sign 0x41
 
   # See https://github.com/MicrochipTech/cryptoauthlib/blob/master/lib/atca_execution.c
   # for command max execution times. I'm not sure why they are different from the
@@ -153,6 +155,32 @@ defmodule ATECC508A.Request do
 
     Transport.request(transport, payload, 23, 32)
     |> interpret_result()
+  end
+
+  @doc """
+  Sign a SHA256 digest.
+  """
+  @spec sign_digest(Transport.t(), slot(), binary()) ::
+          {:ok, binary()} | {:error, atom()}
+  def sign_digest(transport, key_id, digest) do
+    Transport.transaction(transport, fn request ->
+      # See Table 11-33 - Mode Encoding
+      nonce_mode = <<1::size(2), 0::size(1), 0::size(3), 3::size(2)>>
+
+      request.(<<@atecc508a_op_nonce, nonce_mode::binary, 0::size(16), digest::binary>>, 29, 1)
+      |> interpret_result()
+      |> case do
+        {:ok, _} ->
+          # See Table 11-50 - Mode Encoding
+          sign_mode = <<5::size(3), 0::size(4), 0::size(1)>>
+
+          request.(<<@atecc508a_op_sign, sign_mode::binary, key_id::little-16>>, 115, 64)
+          |> interpret_result()
+
+        error ->
+          error
+      end
+    end)
   end
 
   defp zone_index(:config), do: 0
