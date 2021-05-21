@@ -26,7 +26,7 @@ defmodule ATECC508A.Request do
   @atecc508a_op_lock 0x17
   @atecc508a_op_random 0x1B
 
-  # See https://github.com/MicrochipTech/cryptoauthlib/blob/master/lib/atca_execution.c
+  # See https://github.com/MicrochipTech/cryptoauthlib/blob/master/lib/calib/calib_execution.c
   # for command max execution times. I'm not sure why they are different from the
   # datasheet. Since this library is compatible with the ECC608A, the longer time is
   # used.
