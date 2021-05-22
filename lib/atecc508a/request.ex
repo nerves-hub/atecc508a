@@ -171,6 +171,8 @@ defmodule ATECC508A.Request do
   defp interpret_result({:ok, <<0x01>>}), do: {:error, :checkmac_or_verify_miscompare}
   defp interpret_result({:ok, <<0x03>>}), do: {:error, :parse_error}
   defp interpret_result({:ok, <<0x05>>}), do: {:error, :ecc_fault}
+  defp interpret_result({:ok, <<0x07>>}), do: {:error, :self_test_error}
+  defp interpret_result({:ok, <<0x08>>}), do: {:error, :health_test_error}
   defp interpret_result({:ok, <<0x0F>>}), do: {:error, :execution_error}
   defp interpret_result({:ok, <<0x11>>}), do: {:error, :no_wake}
   defp interpret_result({:ok, <<0xEE>>}), do: {:error, :watchdog_about_to_expire}
