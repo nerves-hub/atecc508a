@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.3.0
+
+* New Features
+  * Support signing JWTs for use with the Google Cloud
+    Platform's IoT Core MQTT broker. Thanks to Alex McLain for this PR. See
+    [Issue 34](https://github.com/nerves-hub/atecc508a/pull/34).
+  * Identify the ATECC608B
+
 ## v0.2.3
 
 * Bug fixes
