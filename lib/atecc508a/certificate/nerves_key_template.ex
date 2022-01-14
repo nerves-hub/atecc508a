@@ -1,4 +1,4 @@
-defmodule ATECC508A.Certificate.Template do
+defmodule ATECC508A.Certificate.NervesKeyTemplate do
   defstruct [
     :signer_id,
     :template_id,

@@ -24,7 +24,7 @@ defmodule ATECC508A.CertificateTest do
     compressed_cert =
       ATECC508A.Certificate.compress(
         signer_cert,
-        ATECC508A.Certificate.Template.signer(signer_public_key)
+        ATECC508A.Certificate.NervesKeyTemplate.signer(signer_public_key)
       )
 
     decompressed_cert = ATECC508A.Certificate.decompress(compressed_cert)
@@ -74,7 +74,7 @@ defmodule ATECC508A.CertificateTest do
     compressed =
       ATECC508A.Certificate.compress(
         otp_cert,
-        ATECC508A.Certificate.Template.device(ecc508a_sn, signer_public_key)
+        ATECC508A.Certificate.NervesKeyTemplate.device(ecc508a_sn, signer_public_key)
       )
 
     assert byte_size(compressed.data) == 72
@@ -100,7 +100,7 @@ defmodule ATECC508A.CertificateTest do
     compressed =
       ATECC508A.Certificate.compress(
         otp_cert,
-        ATECC508A.Certificate.Template.device(ecc508a_sn, signer_public_key)
+        ATECC508A.Certificate.NervesKeyTemplate.device(ecc508a_sn, signer_public_key)
       )
 
     decompressed = ATECC508A.Certificate.decompress(compressed)
@@ -146,7 +146,10 @@ defmodule ATECC508A.CertificateTest do
 
     compressed_validity = ATECC508A.Certificate.compress_validity(validity)
 
-    assert ATECC508A.Certificate.decompress_validity(compressed_validity) == validity
+    assert ATECC508A.Certificate.decompress_validity(
+             %ATECC508A.Certificate.NervesKeyTemplate{},
+             compressed_validity
+           ) == validity
   end
 
   defp generate_ca() do
