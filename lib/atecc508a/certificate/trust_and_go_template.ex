@@ -56,7 +56,10 @@ defmodule ATECC508A.Certificate.TrustAndGoTemplate do
         # /serialNumber=serialnumber
         # this is an RDNSequence, however it contains characters that are technically not
         # allowed.
-        {:rdnSequence, [[{:AttributeTypeAndValue, {2, 5, 4, 5}, to_charlist(eui_serial)}]]},
+        Extension.subject_alt_name(
+          directoryName:
+            {:rdnSequence, [[{:AttributeTypeAndValue, {2, 5, 4, 5}, to_charlist(eui_serial)}]]}
+        ),
         # CA=False Critical
         # X509 doesn't allow this field to be critical
         {:Extension, {2, 5, 29, 19}, true, {:BasicConstraints, false, :asn1_NOVALUE}},
