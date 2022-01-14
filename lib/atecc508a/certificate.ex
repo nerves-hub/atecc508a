@@ -266,15 +266,19 @@ defmodule ATECC508A.Certificate do
 
   # in the TrustAndGo module, the "not after" validity field is stored in a generalTime no matter what the year is.
   def decompress_validity(%ATECC508A.Certificate.TrustAndGoTemplate{}, compressed_validity) do
+    import X509.ASN1
+
     {not_before, not_after} = ATECC508A.Validity.decompress(compressed_validity)
-    not_before_validity = X509.DateTime.new(not_before)
 
     not_after_datetime = DateTime.to_iso8601(not_after, :basic)
 
     [_, not_after_date, not_after_time] =
       Regex.run(~r/^(\d{8})T(\d{6})(?:\.\d+)?Z$/, not_after_datetime)
 
-    {not_before_validity, {:generalTime, '#{not_after_date}#{not_after_time}Z'}}
+    validity(
+      notBefore: X509.DateTime.new(not_before),
+      notAfter: {:generalTime, '#{not_after_date}#{not_after_time}Z'}
+    )
   end
 
   def decompress_sn(0x00, compressed, _compressed_validity) do
