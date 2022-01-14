@@ -25,6 +25,10 @@ defmodule ATECC508A.Certificate.Compressed do
     :template
   ]
 
+  @type template ::
+          ATECC508A.Certificate.NervesKeyTemplate.t()
+          | ATECC508A.Certificate.NervesKeyTemplate.t()
+
   @type t :: %__MODULE__{
           data: ATECC508A.compressed_cert(),
           device_sn: ATECC508A.serial_number() | nil,
@@ -32,6 +36,6 @@ defmodule ATECC508A.Certificate.Compressed do
           serial_number: binary() | nil,
           subject_rdn: String.t() | X509.RDNSequence.t(),
           issuer_rdn: String.t() | X509.RDNSequence.t(),
-          template: ATECC508A.Certificate.Template.t()
+          template: template
         }
 end

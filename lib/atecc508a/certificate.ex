@@ -198,7 +198,7 @@ defmodule ATECC508A.Certificate do
             {:rdnSequence, _} -> compressed.issuer_rdn
             name when is_binary(name) -> RDNSequence.new(name, :otp)
           end,
-        validity: decompress_validity(compressed_validity),
+        validity: decompress_validity(template, compressed_validity),
         subject:
           case compressed.subject_rdn do
             {:rdnSequence, _} -> compressed.subject_rdn
@@ -254,11 +254,27 @@ defmodule ATECC508A.Certificate do
     ATECC508A.Validity.compress(not_before, not_after)
   end
 
-  @spec decompress_validity(ATECC508A.encoded_dates()) :: X509.Certificate.Validity.t()
-  def decompress_validity(compressed_validity) do
+  @spec decompress_validity(
+          ATECC508A.Certificate.Compressed.template(),
+          ATECC508A.encoded_dates()
+        ) :: X509.Certificate.Validity.t()
+  def decompress_validity(%ATECC508A.Certificate.NervesKeyTemplate{}, compressed_validity) do
     {not_before, not_after} = ATECC508A.Validity.decompress(compressed_validity)
 
     X509.Certificate.Validity.new(not_before, not_after)
+  end
+
+  # in the TrustAndGo module, the "not after" validity field is stored in a generalTime no matter what the year is.
+  def decompress_validity(%ATECC508A.Certificate.TrustAndGoTemplate{}, compressed_validity) do
+    {not_before, not_after} = ATECC508A.Validity.decompress(compressed_validity)
+    not_before_validity = X509.DateTime.new(not_before)
+
+    not_after_datetime = DateTime.to_iso8601(not_after, :basic)
+
+    [_, not_after_date, not_after_time] =
+      Regex.run(~r/^(\d{8})T(\d{6})(?:\.\d+)?Z$/, not_after_datetime)
+
+    {not_before_validity, {:generalTime, '#{not_after_date}#{not_after_time}Z'}}
   end
 
   def decompress_sn(0x00, compressed, _compressed_validity) do
