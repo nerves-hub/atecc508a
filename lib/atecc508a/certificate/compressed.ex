@@ -27,7 +27,7 @@ defmodule ATECC508A.Certificate.Compressed do
 
   @type template ::
           ATECC508A.Certificate.NervesKeyTemplate.t()
-          | ATECC508A.Certificate.NervesKeyTemplate.t()
+          | ATECC508A.Certificate.TrustAndGoTemplate.t()
 
   @type t :: %__MODULE__{
           data: ATECC508A.compressed_cert(),
