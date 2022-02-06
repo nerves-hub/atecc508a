@@ -45,6 +45,9 @@ defmodule ATECC508A.Certificate.TrustAndGoTemplate do
   end
 
   @spec device(ATECC508A.serial_number(), signer_id, template_id, String.t(), ski, aki) :: t()
+  # there is an error with Extension.subject_alt_name/1 below. The error technically
+  # correct, however in reality the trust and go modules do break the specification
+  @dialyzer {:nowarn_function, device: 6}
   def device(device_sn, signer_id, template_id, eui_serial, ski, aki) do
     %__MODULE__{
       signer_id: signer_id,
