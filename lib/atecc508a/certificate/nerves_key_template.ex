@@ -1,4 +1,11 @@
 defmodule ATECC508A.Certificate.NervesKeyTemplate do
+  @moduledoc """
+  Certificate template for the ATECC508A from Microchip
+
+  Detailed information on the certificate compression process can be found here:
+  http://ww1.microchip.com/downloads/en/Appnotes/20006367A.pdf
+  """
+
   defstruct [
     :signer_id,
     :template_id,

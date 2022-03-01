@@ -1,4 +1,16 @@
 defmodule ATECC508A.Certificate.TrustAndGoTemplate do
+  @moduledoc """
+  Certificate template for pre-provisioned ATECC608B-TNGTLS from Microchip
+  (Also known as a Trust and Go provisioned chip)
+
+  Details on the structure of the compressed certificate and how they map to a standard X.509 cert can be found on the datasheet:
+  https://ww1.microchip.com/downloads/en/DeviceDoc/ATECC608B-TNGTLS-CryptoAuthentication-Data-Sheet-DS40002250A.pdf
+  (Table 4-12 - Certificate Storage)
+
+  Detailed information on the certificate compression process can be found here:
+  http://ww1.microchip.com/downloads/en/Appnotes/20006367A.pdf
+  """
+
   defstruct [
     :signer_id,
     :template_id,
