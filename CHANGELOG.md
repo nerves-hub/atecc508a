@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.1.0
+
+* New features
+  * Support for using the Trust & Go variants of the ATECC608B. The Trust & Go
+    parts come preloaded with certs and this library knows how to decompress
+    them now.
+
 ## v1.0.0
 
 This release only updates the version. It has no code changes.

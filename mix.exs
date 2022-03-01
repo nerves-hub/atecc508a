@@ -1,7 +1,7 @@
 defmodule ATECC508A.MixProject do
   use Mix.Project
 
-  @version "1.0.0"
+  @version "1.1.0"
   @source_url "https://github.com/nerves-hub/atecc508a"
 
   def project do
