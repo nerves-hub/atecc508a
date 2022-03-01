@@ -36,8 +36,9 @@ defmodule ATECC608B.TrustAndGoCertTest do
                      175>>
 
   test "Decompress a Trust and Go certificate" do
-    <<_pad1::bytes-4, signer_public_x::bytes-32, _pad2::bytes-4,
-      signer_public_y::bytes-32>> = ATECC508A.Sim608BTNG.signer_pubkey()
+    <<_pad1::bytes-4, signer_public_x::bytes-32, _pad2::bytes-4, signer_public_y::bytes-32>> =
+      ATECC508A.Sim608BTNG.signer_pubkey()
+
     signer_public_key = signer_public_x <> signer_public_y
 
     device_public_key = ATECC508A.Sim608BTNG.genkey()
@@ -46,15 +47,15 @@ defmodule ATECC608B.TrustAndGoCertTest do
     ski = :crypto.hash(:sha, <<4>> <> device_public_key)
 
     <<
-       _compressed_signature::binary-size(64),
-       _compressed_validity::binary-size(3),
-       signer_id::size(16),
-       template_id::size(4),
-       _chain_id::size(4),
-       _serial_number_source::size(4),
-       _format_version::size(4),
-       0::size(8)
-     >> = ATECC508A.Sim608BTNG.device_cert()
+      _compressed_signature::binary-size(64),
+      _compressed_validity::binary-size(3),
+      signer_id::size(16),
+      template_id::size(4),
+      _chain_id::size(4),
+      _serial_number_source::size(4),
+      _format_version::size(4),
+      0::size(8)
+    >> = ATECC508A.Sim608BTNG.device_cert()
 
     singer_id_string = Integer.to_string(signer_id, 16)
 
@@ -68,8 +69,18 @@ defmodule ATECC608B.TrustAndGoCertTest do
         aki
       )
 
-    issuer_rdn = X509.RDNSequence.new("/O=Microchip Technology Inc/CN=Crypto Authentication Signer #{singer_id_string}", :otp)
-    subject_rdn = X509.RDNSequence.new("/O=Microchip Technology Inc/CN=sn" <> Base.encode16(ATECC508A.Sim608BTNG.serial_number()), :otp)
+    issuer_rdn =
+      X509.RDNSequence.new(
+        "/O=Microchip Technology Inc/CN=Crypto Authentication Signer #{singer_id_string}",
+        :otp
+      )
+
+    subject_rdn =
+      X509.RDNSequence.new(
+        "/O=Microchip Technology Inc/CN=sn" <>
+          Base.encode16(ATECC508A.Sim608BTNG.serial_number()),
+        :otp
+      )
 
     compressed = %ATECC508A.Certificate.Compressed{
       data: ATECC508A.Sim608BTNG.device_cert(),
