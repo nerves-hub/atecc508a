@@ -44,11 +44,17 @@ defmodule ATECC508A.Transport.I2C do
       {:ok, _pid} ->
         {:ok, {__MODULE__, name}}
 
+      {:ok, _pid, _info} ->
+        {:ok, {__MODULE__, name}}
+
       {:error, {:already_started, _pid}} ->
         {:ok, {__MODULE__, name}}
 
+      {:error, _} = err ->
+        err
+
       other_error ->
-        other_error
+        {:error, other_error}
     end
   end
 
