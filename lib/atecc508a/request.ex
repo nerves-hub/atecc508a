@@ -41,7 +41,9 @@ defmodule ATECC508A.Request do
 
   @spec to_config_addr(block(), offset()) :: addr()
   def to_config_addr(block, offset)
-      when block >= 0 and block < 4 and offset >= 0 and offset < 8 do
+      when is_integer(block) and is_integer(offset) and
+             block >= 0 and block < 4 and
+             offset >= 0 and offset < 8 do
     block * 8 + offset
   end
 
@@ -49,7 +51,8 @@ defmodule ATECC508A.Request do
   def to_otp_addr(byte_offset), do: to_config_addr(byte_offset)
 
   @spec to_otp_addr(block(), offset()) :: addr()
-  def to_otp_addr(block, offset), do: to_config_addr(block, offset)
+  def to_otp_addr(block, offset) when is_integer(block) and is_integer(offset),
+    do: to_config_addr(block, offset)
 
   @spec to_data_addr(slot(), 0..416) :: addr()
   def to_data_addr(slot, byte_offset)
@@ -63,7 +66,10 @@ defmodule ATECC508A.Request do
 
   @spec to_data_addr(slot(), block(), offset()) :: addr()
   def to_data_addr(slot, block, offset)
-      when slot >= 0 and slot < 16 and block >= 0 and block < 13 and offset >= 0 and offset < 8 do
+      when is_integer(slot) and is_integer(block) and is_integer(offset) and
+             slot >= 0 and slot < 16 and
+             block >= 0 and block < 13 and
+             offset >= 0 and offset < 8 do
     block * 256 + slot * 8 + offset
   end
 
