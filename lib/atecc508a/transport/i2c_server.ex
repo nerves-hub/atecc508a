@@ -233,7 +233,7 @@ defmodule ATECC508A.Transport.I2CServer do
         :ok
 
       {:ok, something_else} ->
-        Logger.warn(
+        Logger.warning(
           "Unexpected wakeup response: #{inspect(something_else)}. #{retries - 1} retries remaining."
         )
 
