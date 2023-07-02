@@ -47,7 +47,9 @@ defmodule ATECC508A.Certificate do
     x509_cert_sn = ATECC508A.SerialNumber.from_device_sn(atecc508a_sn, compressed_validity)
     template = device_template(x509_cert_sn, x509_validity)
 
-    X509.Certificate.new(atecc508a_public_key, subject_rdn, signer, signer_key, template: template)
+    X509.Certificate.new(atecc508a_public_key, subject_rdn, signer, signer_key,
+      template: template
+    )
   end
 
   @doc """
@@ -277,7 +279,7 @@ defmodule ATECC508A.Certificate do
 
     validity(
       notBefore: X509.DateTime.new(not_before),
-      notAfter: {:generalTime, '#{not_after_date}#{not_after_time}Z'}
+      notAfter: {:generalTime, ~c"#{not_after_date}#{not_after_time}Z"}
     )
   end
 

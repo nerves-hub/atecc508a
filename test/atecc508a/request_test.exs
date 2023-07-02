@@ -45,28 +45,28 @@ defmodule ATECC508A.RequestTest do
 
   test "write config zone" do
     ATECC508A.Transport.Mock
-    |> expect(:request, fn _, <<18, 128, 0, 0, @test_data_32::binary()>>, 45, 1 ->
+    |> expect(:request, fn _, <<18, 128, 0, 0, @test_data_32::binary>>, 45, 1 ->
       {:ok, <<0>>}
     end)
 
     assert Request.write_zone(@mock_transport, :config, 0, @test_data_32) == :ok
 
     ATECC508A.Transport.Mock
-    |> expect(:request, fn _, <<18, 0, 0, 0, @test_data_4::binary()>>, 45, 1 -> {:ok, <<0>>} end)
+    |> expect(:request, fn _, <<18, 0, 0, 0, @test_data_4::binary>>, 45, 1 -> {:ok, <<0>>} end)
 
     assert Request.write_zone(@mock_transport, :config, 0, @test_data_4) == :ok
   end
 
   test "write otp zone" do
     ATECC508A.Transport.Mock
-    |> expect(:request, fn _, <<18, 129, 0, 0, @test_data_32::binary()>>, 45, 1 ->
+    |> expect(:request, fn _, <<18, 129, 0, 0, @test_data_32::binary>>, 45, 1 ->
       {:ok, <<0>>}
     end)
 
     assert Request.write_zone(@mock_transport, :otp, 0, @test_data_32) == :ok
 
     ATECC508A.Transport.Mock
-    |> expect(:request, fn _, <<18, 1, 0, 0, @test_data_4::binary()>>, 45, 1 -> {:ok, <<0>>} end)
+    |> expect(:request, fn _, <<18, 1, 0, 0, @test_data_4::binary>>, 45, 1 -> {:ok, <<0>>} end)
 
     assert Request.write_zone(@mock_transport, :otp, 0, @test_data_4) == :ok
   end
@@ -90,7 +90,7 @@ defmodule ATECC508A.RequestTest do
 
   test "write data zone" do
     ATECC508A.Transport.Mock
-    |> expect(:request, fn _, <<18, 130, 0, 0, @test_data_32::binary()>>, 45, 1 ->
+    |> expect(:request, fn _, <<18, 130, 0, 0, @test_data_32::binary>>, 45, 1 ->
       {:ok, <<0>>}
     end)
 
@@ -99,7 +99,7 @@ defmodule ATECC508A.RequestTest do
 
   test "handles write data zone error" do
     ATECC508A.Transport.Mock
-    |> expect(:request, fn _, <<18, 130, 0, 0, @test_data_32::binary()>>, 45, 1 ->
+    |> expect(:request, fn _, <<18, 130, 0, 0, @test_data_32::binary>>, 45, 1 ->
       {:ok, <<1>>}
     end)
 
