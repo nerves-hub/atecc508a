@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.2.0
+
+* New features
+  * Fix warnings for Elixir 1.15. Only Elixir 1.11 and later are supported now.
+
 ## v1.1.0
 
 * New features
