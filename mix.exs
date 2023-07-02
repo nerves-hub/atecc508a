@@ -8,7 +8,7 @@ defmodule ATECC508A.MixProject do
     [
       app: :atecc508a,
       version: @version,
-      elixir: "~> 1.7",
+      elixir: "~> 1.11",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
