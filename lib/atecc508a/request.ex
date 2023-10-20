@@ -82,8 +82,8 @@ defmodule ATECC508A.Request do
     payload =
       <<@atecc508a_op_read, length_flag(length)::1, 0::5, zone_index(zone)::2, addr::little-16>>
 
-    Transport.request(transport, payload, 5, length)
-    |> interpret_result()
+    transport
+    |> transport_request(payload, 5, length)
   end
 
   @doc """
@@ -97,8 +97,8 @@ defmodule ATECC508A.Request do
       <<@atecc508a_op_write, length_flag(len)::1, 0::5, zone_index(zone)::2, addr::little-16,
         data::binary>>
 
-    Transport.request(transport, payload, 45, 1)
-    |> interpret_result()
+    transport
+    |> transport_request(payload, 45, 1)
     |> return_status()
   end
 
@@ -114,8 +114,8 @@ defmodule ATECC508A.Request do
     payload =
       <<@atecc508a_op_genkey, 0::3, mode4::1, mode3::1, mode2::1, 0::2, key_id::little-16>>
 
-    Transport.request(transport, payload, 653, 64)
-    |> interpret_result()
+    transport
+    |> transport_request(payload, 653, 64)
   end
 
   @doc """
@@ -130,8 +130,8 @@ defmodule ATECC508A.Request do
     mode = if zone == :config, do: 0, else: 1
     payload = <<@atecc508a_op_lock, mode, zone_crc::binary>>
 
-    Transport.request(transport, payload, 35, 1)
-    |> interpret_result()
+    transport
+    |> transport_request(payload, 35, 1)
     |> return_status()
   end
 
@@ -147,8 +147,8 @@ defmodule ATECC508A.Request do
     mode = <<0::size(2), slot::size(4), 2::size(2)>>
     payload = <<@atecc508a_op_lock, mode::binary, 0::size(16)>>
 
-    Transport.request(transport, payload, 35, 1)
-    |> interpret_result()
+    transport
+    |> transport_request(payload, 35, 1)
     |> return_status()
   end
 
@@ -159,8 +159,8 @@ defmodule ATECC508A.Request do
   def random(transport) do
     payload = <<@atecc508a_op_random, 0, 0, 0>>
 
-    Transport.request(transport, payload, 23, 32)
-    |> interpret_result()
+    transport
+    |> transport_request(payload, 23, 32)
   end
 
   @doc """
@@ -181,7 +181,6 @@ defmodule ATECC508A.Request do
           sign_mode = <<5::size(3), 0::size(4), 0::size(1)>>
 
           request.(<<@atecc508a_op_sign, sign_mode::binary, key_id::little-16>>, 115, 64)
-          |> interpret_result()
 
         error ->
           error
@@ -195,6 +194,66 @@ defmodule ATECC508A.Request do
 
   defp length_flag(32), do: 1
   defp length_flag(4), do: 0
+
+  @spec transport_request(
+          transport :: Transport.t(),
+          payload :: binary(),
+          timeout :: non_neg_integer(),
+          response_payload_len :: non_neg_integer(),
+          request_timeout :: non_neg_integer()
+        ) :: {:ok, binary()} | {:error, atom()}
+  defp transport_request(
+         transport,
+         payload,
+         timeout,
+         response_payload_len,
+         request_timeout \\ 1000
+       ) do
+    give_up_time = System.monotonic_time(:millisecond) + request_timeout
+
+    retry_request_with_timeout(
+      transport,
+      payload,
+      timeout,
+      response_payload_len,
+      give_up_time
+    )
+  end
+
+  defp retry_request_with_timeout(
+         transport,
+         payload,
+         timeout,
+         response_payload_len,
+         give_up_time
+       ) do
+    result =
+      transport
+      |> Transport.request(payload, timeout, response_payload_len)
+      |> interpret_result()
+
+    case result do
+      {:ok, _} ->
+        result
+
+      {:error, :watchdog_about_to_expire} ->
+        Process.sleep(100)
+
+        if System.monotonic_time(:millisecond) > give_up_time,
+          do: {:error, :watchdog_retry_timeout},
+          else:
+            retry_request_with_timeout(
+              transport,
+              payload,
+              timeout,
+              response_payload_len,
+              give_up_time
+            )
+
+      {:error, _} ->
+        result
+    end
+  end
 
   defp interpret_result({:ok, data}) when byte_size(data) > 1 do
     {:ok, data}
