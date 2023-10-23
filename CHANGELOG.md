@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.2.1
+
+* Changes
+  * Automatically retry if a request gets a `:watchdog_about_to_expire` error.
+    These errors are transient and the code tries to avoid them, but they
+    happen, so retry when they do.
+  * Allow Circuits.I2C 2.0 to be used by lossening the dependency.
+
 ## v1.2.0
 
 * New features
