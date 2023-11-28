@@ -158,14 +158,9 @@ defmodule ATECC508A.Transport.I2CServer do
   defp make_cached_request(payload, timeout, response_payload_len, i2c, address, cache) do
     case Cache.get(cache, payload) do
       nil ->
-        case make_request(payload, timeout, response_payload_len, i2c, address) do
-          {:ok, _message} = rc ->
-            Cache.put(cache, payload, rc)
-            rc
-
-          error ->
-            error
-        end
+        result = make_request(payload, timeout, response_payload_len, i2c, address)
+        Cache.put(cache, payload, result)
+        result
 
       response ->
         response
