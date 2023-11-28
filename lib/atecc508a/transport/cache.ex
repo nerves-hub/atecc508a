@@ -5,6 +5,8 @@ defmodule ATECC508A.Transport.Cache do
 
   use GenServer
 
+  @type response() :: {:ok, binary()} | {:error, any()}
+
   @atecc508a_op_read 0x02
   @atecc508a_op_genkey 0x40
   @atecc508a_op_random 0x1B
@@ -15,60 +17,69 @@ defmodule ATECC508A.Transport.Cache do
   end
 
   @doc """
-  Check if the specified request is in the cache
+  Check the cache for the request
   """
-  @spec get(GenServer.server(), binary()) :: binary() | nil
+  @spec get(GenServer.server(), binary()) :: response() | nil
   def get(pid, request) do
     GenServer.call(pid, {:get, request})
   end
 
   @doc """
-  Save a response back to the cache
+  Selectively cache responses
   """
-  @spec put(GenServer.server(), binary(), any()) :: any()
-
-  # Cache all reads
-  def put(pid, <<@atecc508a_op_read, _::binary>> = request, response) do
-    GenServer.call(pid, {:put, request, response})
+  @spec put(GenServer.server(), binary(), response()) :: :ok
+  def put(pid, request, response) do
+    case triage(request, response) do
+      :cache -> GenServer.call(pid, {:put, request, response})
+      :flush -> GenServer.call(pid, :flush)
+      :ignore -> :ok
+    end
   end
 
-  # Cache the response to getting a public key
-  def put(pid, <<@atecc508a_op_genkey, 0, _key_id::little-16>> = request, response) do
-    GenServer.call(pid, {:put, request, response})
-  end
-
-  # Don't cache random numbers
-  def put(_pid, <<@atecc508a_op_random, _::binary>>, response), do: response
-
-  # Flush the cache on everything else:
-  #   writes, locks, etc.
-  #
-  # This is overkill, but safe.
-  def put(pid, _request, response) do
-    GenServer.call(pid, :flush)
-    response
-  end
-
-  @impl true
+  @impl GenServer
   def init(_) do
     cache = %{}
     {:ok, cache}
   end
 
-  @impl true
+  @impl GenServer
   def handle_call({:get, request}, _from, cache) do
     result = Map.get(cache, request)
     {:reply, result, cache}
   end
 
-  @impl true
   def handle_call({:put, request, response}, _from, cache) do
     new_cache = Map.put(cache, request, response)
-    {:reply, response, new_cache}
+    {:reply, :ok, new_cache}
   end
 
-  @impl true
   def handle_call(:flush, _from, _cache) do
     {:reply, :ok, %{}}
   end
+
+  # Ignore errors outright
+  defp triage(_request, {:error, _reason}), do: :ignore
+
+  # Cache all successful reads
+  defp triage(<<@atecc508a_op_read, _::binary>>, {:ok, data})
+       when byte_size(data) == 4 or byte_size(data) == 32,
+       do: :cache
+
+  defp triage(<<@atecc508a_op_read, _::binary>>, _result), do: :ignore
+
+  # Cache successful responses to getting a public key
+  defp triage(<<@atecc508a_op_genkey, 0, _key_id::little-16>>, {:ok, data})
+       when byte_size(data) == 64,
+       do: :cache
+
+  defp triage(<<@atecc508a_op_genkey, 0, _key_id::little-16>>, _result), do: :ignore
+
+  # Don't cache random numbers
+  defp triage(<<@atecc508a_op_random, _::binary>>, _result), do: :ignore
+
+  # Flush the cache on everything else:
+  #   writes, locks, etc.
+  #
+  # This is overkill, but safe.
+  defp triage(_request, _result), do: :flush
 end
