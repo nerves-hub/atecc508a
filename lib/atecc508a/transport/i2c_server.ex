@@ -119,7 +119,7 @@ defmodule ATECC508A.Transport.I2CServer do
   @doc """
   Extract the response from the data returned from an I2C read
   """
-  @spec unpackage(binary()) :: {:ok, binary()} | {:error, atom()}
+  @spec unpackage(nonempty_binary()) :: {:ok, binary()} | {:error, :bad_crc | :short_packet}
   def unpackage(<<length, payload_and_crc::binary>>) do
     with {:ok, payload, crc} <- extract_payload(length - 3, payload_and_crc),
          ^crc <- ATECC508A.CRC.crc(<<length, payload::binary>>) do
