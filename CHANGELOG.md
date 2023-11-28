@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.2.2
+
+This release adds more bulletproofing to the ATECC. If your ATECC is on it's own
+I2C bus, these shouldn't be needed. If the ATECC shares an I2C bus with other
+devices, communication with other devices could inadvertently wake the ATECC up
+(due to it's hold SDA low trigger) and cause it to fall asleep via its watchdog
+and unexpected times from this library's point of view.
+
+* Changes
+  * Fix potential issue where incorrect responses from the ATECC could be cached.
+  * Don't wake the ATECC up for requests that can be satisfied by the cache
+  * Retry more kinds of ATECC/I2C failures than just `:watchdog_about_to_expire` ones.
+
 ## v1.2.1
 
 * Changes
