@@ -176,13 +176,13 @@ defmodule ATECC508A.Request do
       request.(<<@atecc508a_op_nonce, nonce_mode::binary, 0::size(16), digest::binary>>, 29, 1)
       |> interpret_result()
       |> case do
-        {:ok, _} ->
+        {{:ok, _}, _retry} ->
           # See Table 11-50 - Mode Encoding
           sign_mode = <<5::size(3), 0::size(4), 0::size(1)>>
 
           request.(<<@atecc508a_op_sign, sign_mode::binary, key_id::little-16>>, 115, 64)
 
-        error ->
+        {error, _retry} ->
           error
       end
     end)
@@ -227,50 +227,45 @@ defmodule ATECC508A.Request do
          response_payload_len,
          give_up_time
        ) do
-    result =
+    {result, retry?} =
       transport
       |> Transport.request(payload, timeout, response_payload_len)
       |> interpret_result()
 
-    case result do
-      {:ok, _} ->
-        result
+    if retry? do
+      Process.sleep(100)
 
-      {:error, :watchdog_about_to_expire} ->
-        Process.sleep(100)
-
-        if System.monotonic_time(:millisecond) > give_up_time,
-          do: {:error, :watchdog_retry_timeout},
-          else:
-            retry_request_with_timeout(
-              transport,
-              payload,
-              timeout,
-              response_payload_len,
-              give_up_time
-            )
-
-      {:error, _} ->
-        result
+      if System.monotonic_time(:millisecond) > give_up_time,
+        do: {:error, {:no_more_retries, result}},
+        else:
+          retry_request_with_timeout(
+            transport,
+            payload,
+            timeout,
+            response_payload_len,
+            give_up_time
+          )
+    else
+      result
     end
   end
 
   defp interpret_result({:ok, data}) when byte_size(data) > 1 do
-    {:ok, data}
+    {{:ok, data}, false}
   end
 
-  defp interpret_result({:error, reason}), do: {:error, reason}
-  defp interpret_result({:ok, <<0x00>>}), do: {:ok, <<0x00>>}
-  defp interpret_result({:ok, <<0x01>>}), do: {:error, :checkmac_or_verify_miscompare}
-  defp interpret_result({:ok, <<0x03>>}), do: {:error, :parse_error}
-  defp interpret_result({:ok, <<0x05>>}), do: {:error, :ecc_fault}
-  defp interpret_result({:ok, <<0x07>>}), do: {:error, :self_test_error}
-  defp interpret_result({:ok, <<0x08>>}), do: {:error, :health_test_error}
-  defp interpret_result({:ok, <<0x0F>>}), do: {:error, :execution_error}
-  defp interpret_result({:ok, <<0x11>>}), do: {:error, :no_wake}
-  defp interpret_result({:ok, <<0xEE>>}), do: {:error, :watchdog_about_to_expire}
-  defp interpret_result({:ok, <<0xFF>>}), do: {:error, :crc_error}
-  defp interpret_result({:ok, <<unknown>>}), do: {:error, {:unexpected_status, unknown}}
+  defp interpret_result({:error, reason}), do: {{:error, reason}, true}
+  defp interpret_result({:ok, <<0x00>>}), do: {{:ok, <<0x00>>}, false}
+  defp interpret_result({:ok, <<0x01>>}), do: {{:error, :checkmac_or_verify_miscompare}, false}
+  defp interpret_result({:ok, <<0x03>>}), do: {{:error, :parse_error}, true}
+  defp interpret_result({:ok, <<0x05>>}), do: {{:error, :ecc_fault}, true}
+  defp interpret_result({:ok, <<0x07>>}), do: {{:error, :self_test_error}, false}
+  defp interpret_result({:ok, <<0x08>>}), do: {{:error, :health_test_error}, false}
+  defp interpret_result({:ok, <<0x0F>>}), do: {{:error, :execution_error}, false}
+  defp interpret_result({:ok, <<0x11>>}), do: {{:error, :no_wake}, true}
+  defp interpret_result({:ok, <<0xEE>>}), do: {{:error, :watchdog_about_to_expire}, true}
+  defp interpret_result({:ok, <<0xFF>>}), do: {{:error, :crc_error}, true}
+  defp interpret_result({:ok, <<unknown>>}), do: {{:error, {:unexpected_status, unknown}}, true}
 
   defp return_status({:ok, _}), do: :ok
   defp return_status(other), do: other
