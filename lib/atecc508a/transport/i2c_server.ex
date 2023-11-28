@@ -87,9 +87,15 @@ defmodule ATECC508A.Transport.I2CServer do
   @impl true
   def handle_call({:request, payload, timeout, response_payload_len}, _from, state) do
     response =
-      do_transaction(state.i2c, state.address, state.cache, fn request ->
-        request.(payload, timeout, response_payload_len)
-      end)
+      case Cache.get(state.cache, payload) do
+        nil ->
+          do_transaction(state.i2c, state.address, state.cache, fn request ->
+            request.(payload, timeout, response_payload_len)
+          end)
+
+        response ->
+          response
+      end
 
     {:reply, response, state}
   end
