@@ -68,11 +68,11 @@ modules that make working with the device easier elsewhere.
 
 ## Device configuration
 
-Figuring out how to configure this devices is perhaps the most consuming part of
+Figuring out how to configure devices is perhaps the most consuming part of
 using an ATECC508A/ATECC608. Take a look at the device configuration section in
 the [NervesKey documentation](https://github.com/nerves-hub/nerves_key). That
 configuration supports authenticating TLS connections to [Nerves
 Hub](https://nerves-hub.org/) and other cloud services. The `NervesKey` library
-also makes provisioning the chip much easier that using this library directly.
+also makes provisioning the chip much easier than using this library directly.
 For integrating with Erlang's TLS stack, see
 [nerves_key_pkcs11](https://github.com/nerves-hub/nerves_key_pkcs11).
