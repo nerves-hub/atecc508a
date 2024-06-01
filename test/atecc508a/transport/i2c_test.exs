@@ -3,11 +3,6 @@ defmodule ATECC508A.Transport.I2CTest do
 
   alias ATECC508A.Transport.I2CServer
 
-  @moduledoc """
-  This tests the parts of the I2C transport behaviour that don't
-  interact with hardware.
-  """
-
   test "package request" do
     message = <<0, 1, 2, 3>>
     message_crc = ATECC508A.CRC.crc(<<7, message::binary>>)

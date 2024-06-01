@@ -1,4 +1,5 @@
 defmodule ATECC508A.CRC do
+  @moduledoc false
   import Bitwise
 
   @atecc508a_polynomial 0x8005

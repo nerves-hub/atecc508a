@@ -1,9 +1,8 @@
 defmodule ATECC508A.Validity do
-  @era 2000
-
   @moduledoc """
   Handle the ATECC508's encoded dates
   """
+  @era 2000
 
   @doc """
   Create a compatible date range for X.509 certificates that need to be compressed.
@@ -77,6 +76,7 @@ defmodule ATECC508A.Validity do
   @doc """
   Check that the specified dates can be represented in a compressed certificate.
   """
+  @spec valid_dates?(DateTime.t(), DateTime.t()) :: boolean
   def valid_dates?(issue_date, expire_date) do
     {new_issue_date, new_expire_date} = compress(issue_date, expire_date) |> decompress()
 

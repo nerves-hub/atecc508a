@@ -10,6 +10,7 @@ defmodule ATECC508A.Sim508A do
   @doc """
   Our simulated ECC508A has an easy-to-remember serial number
   """
+  @spec serial_number() :: binary()
   def serial_number() do
     <<1, 2, 3, 4, 5, 6, 7, 8, 9>>
   end

@@ -12,7 +12,7 @@ defmodule ATECC508A.Transport.Cache do
   @atecc508a_op_random 0x1B
 
   @spec start_link() :: GenServer.on_start()
-  def start_link do
+  def start_link() do
     GenServer.start_link(__MODULE__, nil)
   end
 

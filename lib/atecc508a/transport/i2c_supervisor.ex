@@ -1,8 +1,8 @@
 defmodule ATECC508A.Transport.I2CSupervisor do
+  @moduledoc false
   use DynamicSupervisor
 
-  @moduledoc false
-
+  @spec start_link(keyword()) :: Supervisor.on_start()
   def start_link(args) do
     DynamicSupervisor.start_link(__MODULE__, args, name: __MODULE__)
   end

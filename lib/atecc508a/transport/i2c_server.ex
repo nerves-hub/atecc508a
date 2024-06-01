@@ -1,10 +1,9 @@
 defmodule ATECC508A.Transport.I2CServer do
+  @moduledoc false
   use GenServer
-  require Logger
 
   alias ATECC508A.Transport.Cache
-
-  @moduledoc false
+  require Logger
 
   # 1.5 ms in the datasheet
   @atecc508a_wake_delay_ms 2

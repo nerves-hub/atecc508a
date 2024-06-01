@@ -5,6 +5,7 @@ defmodule ATECC508A.Certificate.NervesKeyTemplate do
   Detailed information on the certificate compression process can be found here:
   http://ww1.microchip.com/downloads/en/Appnotes/20006367A.pdf
   """
+  alias X509.Certificate.Extension
 
   defstruct [
     :signer_id,
@@ -16,9 +17,7 @@ defmodule ATECC508A.Certificate.NervesKeyTemplate do
     extensions: []
   ]
 
-  alias X509.Certificate.Extension
-
-  @type t :: %__MODULE__{
+  @type t() :: %__MODULE__{
           signer_id: 0..65535,
           template_id: 0..15,
           chain_id: 0..15,

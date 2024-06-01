@@ -4,6 +4,7 @@ defmodule ATECC508A.Sim608BTNG do
   Used to test certificate decompression.
   """
 
+  @spec device_cert() :: binary()
   def device_cert() do
     # Read from slot 10
     <<225, 151, 170, 38, 210, 208, 172, 148, 171, 77, 236, 194, 48, 85, 79, 86, 17, 205, 83, 174,
@@ -12,6 +13,7 @@ defmodule ATECC508A.Sim608BTNG do
       130, 176, 36, 175, 165, 172, 156, 44, 0, 48, 160, 0>>
   end
 
+  @spec genkey() :: binary()
   def genkey() do
     <<211, 48, 184, 178, 237, 228, 213, 2, 223, 72, 181, 74, 47, 41, 204, 121, 249, 1, 229, 148,
       253, 107, 249, 45, 235, 109, 24, 122, 199, 127, 45, 187, 177, 96, 39, 154, 74, 32, 167, 230,
@@ -19,6 +21,7 @@ defmodule ATECC508A.Sim608BTNG do
       153, 16, 103, 105>>
   end
 
+  @spec signer_cert() :: binary()
   def signer_cert() do
     # Read from slot 12
     <<236, 201, 73, 152, 143, 97, 145, 48, 185, 39, 115, 34, 149, 140, 253, 169, 125, 155, 10,
@@ -27,6 +30,7 @@ defmodule ATECC508A.Sim608BTNG do
       215, 94, 250, 7, 62, 214, 17, 150, 58, 159, 44, 0, 16, 160, 0>>
   end
 
+  @spec signer_pubkey() :: binary()
   def signer_pubkey() do
     # Read from slot 11
     <<0, 0, 0, 0, 46, 186, 27, 42, 208, 183, 62, 78, 68, 114, 94, 12, 9, 52, 141, 64, 146, 160,
@@ -35,11 +39,13 @@ defmodule ATECC508A.Sim608BTNG do
       226, 53, 208, 83, 192, 93, 246, 126, 244>>
   end
 
+  @spec mac() :: binary()
   def mac() do
     # Read from slot 5
     <<69, 56, 69, 66, 49, 66, 50, 48, 50, 48, 50, 55>>
   end
 
+  @spec serial_number() :: binary()
   def serial_number() do
     # Read from the configuration zone
     <<1, 35, 162, 63, 41, 249, 54, 106, 1>>

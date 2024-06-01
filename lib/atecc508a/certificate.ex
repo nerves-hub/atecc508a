@@ -7,8 +7,10 @@ defmodule ATECC508A.Certificate do
   """
 
   import X509.ASN1, except: [extension: 2, basic_constraints: 1]
-  alias X509.{PublicKey, RDNSequence, SignatureAlgorithm}
   alias X509.Certificate.Template
+  alias X509.PublicKey
+  alias X509.RDNSequence
+  alias X509.SignatureAlgorithm
 
   @hash :sha256
   @curve :secp256r1
@@ -283,17 +285,17 @@ defmodule ATECC508A.Certificate do
     )
   end
 
-  def decompress_sn(0x00, compressed, _compressed_validity) do
+  defp decompress_sn(0x00, compressed, _compressed_validity) do
     # Stored serial number
     compressed.serial_number
   end
 
-  def decompress_sn(0x0A, compressed, compressed_validity) do
+  defp decompress_sn(0x0A, compressed, compressed_validity) do
     # Calculated from public key
     ATECC508A.SerialNumber.from_public_key(compressed.public_key, compressed_validity)
   end
 
-  def decompress_sn(0x0B, compressed, compressed_validity) do
+  defp decompress_sn(0x0B, compressed, compressed_validity) do
     # Calculated from device serial number
     ATECC508A.SerialNumber.from_device_sn(compressed.device_sn, compressed_validity)
   end

@@ -10,6 +10,13 @@ defmodule ATECC508A.Certificate.TrustAndGoTemplate do
   Detailed information on the certificate compression process can be found here:
   http://ww1.microchip.com/downloads/en/Appnotes/20006367A.pdf
   """
+  alias X509.Certificate.Extension
+
+  @type signer_id :: 0..65535
+  @type template_id :: 0..15
+  @type chain_id :: 0..15
+  @type ski :: binary()
+  @type aki :: binary()
 
   defstruct [
     :signer_id,
@@ -21,15 +28,7 @@ defmodule ATECC508A.Certificate.TrustAndGoTemplate do
     extensions: []
   ]
 
-  alias X509.Certificate.Extension
-
-  @type signer_id :: 0..65535
-  @type template_id :: 0..15
-  @type chain_id :: 0..15
-  @type ski :: binary()
-  @type aki :: binary()
-
-  @type t :: %__MODULE__{
+  @type t() :: %__MODULE__{
           signer_id: signer_id,
           template_id: template_id,
           chain_id: chain_id,
