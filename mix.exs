@@ -54,6 +54,8 @@ defmodule ATECC508A.MixProject do
     [
       {:x509, "~> 0.5.1 or ~> 0.6"},
       {:circuits_i2c, "~> 1.0 or ~> 0.2 or ~> 2.0"},
+      {:credo, "~> 1.6", only: :dev, runtime: false},
+      {:credo_binary_patterns, "~> 0.2.2", only: :dev, runtime: false},
       {:ex_doc, "~> 0.22", only: :docs, runtime: false},
       {:dialyxir, "~> 1.1", only: :dev, runtime: false},
       {:mox, "~> 1.0", only: :test}
