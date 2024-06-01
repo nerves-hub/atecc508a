@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.3.0
+
+* New features
+  * Add ECDH support (Thanks to @sergey-lukianov)
+
 ## v1.2.2
 
 This release adds more bulletproofing to the ATECC. If your ATECC is on it's own
