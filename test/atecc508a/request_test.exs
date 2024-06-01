@@ -172,6 +172,15 @@ defmodule ATECC508A.RequestTest do
     assert Request.sign_digest(@mock_transport, 0, @test_data_32) == {:ok, @test_data_64}
   end
 
+  test "calculate ECDH secret" do
+    ATECC508A.Transport.Mock
+    |> expect(:request, fn _, <<0x43, 0, 0, 0, @test_data_32::binary>>, _, _ ->
+      {:ok, @test_data_32}
+    end)
+
+    assert Request.ecdh(@mock_transport, @test_data_32) == {:ok, @test_data_32}
+  end
+
   test "watchdog retry mechanism" do
     ATECC508A.Transport.Mock
     |> expect(:request, fn _, <<2, 128, 0, 0>>, 5, 32 ->

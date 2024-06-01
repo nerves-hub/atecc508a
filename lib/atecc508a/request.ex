@@ -27,6 +27,7 @@ defmodule ATECC508A.Request do
   @atecc508a_op_lock 0x17
   @atecc508a_op_random 0x1B
   @atecc508a_op_sign 0x41
+  @atecc508a_op_ecdh 0x43
 
   # See https://github.com/MicrochipTech/cryptoauthlib/blob/master/lib/calib/calib_execution.c
   # for command max execution times. I'm not sure why they are different from the
@@ -186,6 +187,16 @@ defmodule ATECC508A.Request do
           error
       end
     end)
+  end
+
+  @doc """
+  Calculates ECDH secret.
+  """
+  @spec ecdh(Transport.t(), binary()) :: {:ok, binary()} | {:error, atom()}
+  def ecdh(transport, raw_pub_key) do
+    payload = <<@atecc508a_op_ecdh, 0, 0, 0, raw_pub_key::binary>>
+
+    transport_request(transport, payload, 998, 32)
   end
 
   defp zone_index(:config), do: 0
