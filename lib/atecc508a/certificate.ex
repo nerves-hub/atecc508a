@@ -222,10 +222,10 @@ defmodule ATECC508A.Certificate do
   """
   @spec compress_signature(<<_::512>>) :: <<_::512>>
   def compress_signature(signature) do
-    <<0x30, _len, 0x02, r_len, r::signed-unit(8)-size(r_len), 0x02, s_len,
-      s::signed-unit(8)-size(s_len)>> = signature
+    <<0x30, _len, 0x02, r_len, r::signed-size(r_len)-unit(8), 0x02, s_len,
+      s::signed-size(s_len)-unit(8)>> = signature
 
-    <<r::unsigned-size(256), s::unsigned-size(256)>>
+    <<r::256, s::256>>
   end
 
   @doc """
@@ -371,9 +371,8 @@ defmodule ATECC508A.Certificate do
   end
 
   defp to_datetime({:utcTime, timestamp}) do
-    <<year::binary-unit(8)-size(2), month::binary-unit(8)-size(2), day::binary-unit(8)-size(2),
-      hour::binary-unit(8)-size(2), minute::binary-unit(8)-size(2),
-      second::binary-unit(8)-size(2), "Z">> = to_string(timestamp)
+    <<year::2-bytes, month::2-bytes, day::2-bytes, hour::2-bytes, minute::2-bytes,
+      second::2-bytes, "Z">> = to_string(timestamp)
 
     NaiveDateTime.new(
       String.to_integer(year) + @era,
@@ -393,9 +392,8 @@ defmodule ATECC508A.Certificate do
   end
 
   defp to_datetime({:generalTime, timestamp}) do
-    <<year::binary-unit(8)-size(4), month::binary-unit(8)-size(2), day::binary-unit(8)-size(2),
-      hour::binary-unit(8)-size(2), minute::binary-unit(8)-size(2),
-      second::binary-unit(8)-size(2), "Z">> = to_string(timestamp)
+    <<year::4-bytes, month::2-bytes, day::2-bytes, hour::2-bytes, minute::2-bytes,
+      second::2-bytes, "Z">> = to_string(timestamp)
 
     NaiveDateTime.new(
       String.to_integer(year),

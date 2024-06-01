@@ -15,7 +15,7 @@ defmodule ATECC508A.Util do
   end
 
   def pad_zeros(bin, len) do
-    <<bin::bytes-size(len)>>
+    <<bin::binary-size(len)>>
   end
 
   @doc """

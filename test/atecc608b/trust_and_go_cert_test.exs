@@ -36,7 +36,7 @@ defmodule ATECC608B.TrustAndGoCertTest do
                      175>>
 
   test "Decompress a Trust and Go certificate" do
-    <<_pad1::bytes-4, signer_public_x::bytes-32, _pad2::bytes-4, signer_public_y::bytes-32>> =
+    <<_pad1::4-bytes, signer_public_x::32-bytes, _pad2::4-bytes, signer_public_y::32-bytes>> =
       ATECC508A.Sim608BTNG.signer_pubkey()
 
     signer_public_key = signer_public_x <> signer_public_y

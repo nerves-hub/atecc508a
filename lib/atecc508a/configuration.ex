@@ -71,7 +71,7 @@ defmodule ATECC508A.Configuration do
   be changed. This only writes the ones that can.
   """
   @spec write(Transport.t(), t()) :: :ok | {:error, atom()}
-  def write(transport, info = %__MODULE__{}) do
+  def write(transport, %__MODULE__{} = info) do
     data = to_raw(info)
 
     <<_read_only::16-bytes, writable0::16-bytes, writable1::32-bytes, writable2::20-bytes,
