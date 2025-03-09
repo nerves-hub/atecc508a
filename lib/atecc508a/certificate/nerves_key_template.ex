@@ -1,3 +1,10 @@
+# SPDX-FileCopyrightText: 2018 Frank Hunleth
+# SPDX-FileCopyrightText: 2018 Justin Schneck
+# SPDX-FileCopyrightText: 2022 Connor Rigby
+# SPDX-FileCopyrightText: 2022 Digit
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule ATECC508A.Certificate.NervesKeyTemplate do
   @moduledoc """
   Certificate template for the ATECC508A from Microchip

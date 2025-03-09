@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2018 Frank Hunleth
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule ATECC508A.DataZone do
   @moduledoc """
   This module handles operations on the data zone.

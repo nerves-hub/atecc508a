@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2022 Digit
+# SPDX-FileCopyrightText: 2024 Frank Hunleth
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule ATECC508A.Sim608BTNG do
   @moduledoc """
   A module that returns values extracted from a Trust and Go (ATECC608B-TNGTLS) development kit

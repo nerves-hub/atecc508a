@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2018 Justin Schneck
+# SPDX-FileCopyrightText: 2024 Frank Hunleth
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule ATECC508A.Sim508A do
   @moduledoc """
   This is a simulated ATECC508A for creating things normally created

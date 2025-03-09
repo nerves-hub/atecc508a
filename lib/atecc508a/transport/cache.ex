@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2019 Frank Hunleth
+# SPDX-FileCopyrightText: 2021 Alex McLain
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule ATECC508A.Transport.Cache do
   @moduledoc """
   Simple cache for reducing unnecessary traffic to the ATECC508A

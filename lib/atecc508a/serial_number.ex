@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2018 Frank Hunleth
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule ATECC508A.SerialNumber do
   @moduledoc """
   Compute X.509 certificate serial numbers

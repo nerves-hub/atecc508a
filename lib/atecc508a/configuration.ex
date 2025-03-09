@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2018 Frank Hunleth
+# SPDX-FileCopyrightText: 2021 Alex McLain
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule ATECC508A.Configuration do
   @moduledoc """
   This module handles operations on the configuration zone.

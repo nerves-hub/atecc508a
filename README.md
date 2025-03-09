@@ -1,7 +1,9 @@
 # ATECC508A
 
-[![CircleCI](https://circleci.com/gh/nerves-hub/atecc508a.svg?style=svg)](https://circleci.com/gh/nerves-hub/atecc508a)
 [![Hex version](https://img.shields.io/hexpm/v/atecc508a.svg "Hex version")](https://hex.pm/packages/atecc508a)
+[![API docs](https://img.shields.io/hexpm/v/atecc508a.svg?label=hexdocs "API docs")](https://hexdocs.pm/atecc508a/ATECC508A.html)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/nerves-hub/atecc508a/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/nerves-hub/atecc508a/tree/main)
+[![REUSE status](https://api.reuse.software/badge/github.com/nerves-hub/atecc508a)](https://api.reuse.software/info/github.com/nerves-hub/atecc508a)
 
 The [ATECC508A Crypto Authentication](https://www.microchip.com/wwwproducts/en/ATECC508A)
 (or the newer ATECC608A) is the main component of the NervesKey. If your device

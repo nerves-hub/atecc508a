@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2018 Frank Hunleth
+# SPDX-FileCopyrightText: 2022 Connor Rigby
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule ATECC508A.Certificate.Compressed do
   @moduledoc """
   An ATECC508A compressed certificate and accompanying information needed to decompress it.

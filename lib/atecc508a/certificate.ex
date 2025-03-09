@@ -1,3 +1,9 @@
+# SPDX-FileCopyrightText: 2018 Frank Hunleth
+# SPDX-FileCopyrightText: 2018 Justin Schneck
+# SPDX-FileCopyrightText: 2022 Connor Rigby
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule ATECC508A.Certificate do
   @moduledoc """
   Convert between X.509 certificates and ATECC508A compressed certificates

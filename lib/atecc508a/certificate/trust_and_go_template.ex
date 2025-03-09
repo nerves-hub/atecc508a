@@ -1,3 +1,9 @@
+# SPDX-FileCopyrightText: 2022 Connor Rigby
+# SPDX-FileCopyrightText: 2022 Digit
+# SPDX-FileCopyrightText: 2024 Frank Hunleth
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule ATECC508A.Certificate.TrustAndGoTemplate do
   @moduledoc """
   Certificate template for pre-provisioned ATECC608B-TNGTLS from Microchip

@@ -1,3 +1,10 @@
+# SPDX-FileCopyrightText: 2018 Frank Hunleth
+# SPDX-FileCopyrightText: 2019 Justin Schneck
+# SPDX-FileCopyrightText: 2021 Alex McLain
+# SPDX-FileCopyrightText: 2022 Jon Carstens
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule ATECC508A.Transport.I2C do
   @moduledoc """
   Implementation for communicating with ATECC508A parts connected over I2C

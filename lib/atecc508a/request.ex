@@ -1,3 +1,11 @@
+# SPDX-FileCopyrightText: 2018 Frank Hunleth
+# SPDX-FileCopyrightText: 2021 Alex McLain
+# SPDX-FileCopyrightText: 2022 Jon Carstens
+# SPDX-FileCopyrightText: 2023 Connor Rigby
+# SPDX-FileCopyrightText: 2024 Serhii Lukianov
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule ATECC508A.Request do
   @moduledoc """
   This module knows how to send requests to the ATECC508A.

@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2018 Frank Hunleth
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule ATECC508A.Info do
   @moduledoc """
   This struct contains all of the data stored on the device. Depending on how the device has been provisioned (or not),

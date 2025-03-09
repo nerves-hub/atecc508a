@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2019 Frank Hunleth
+# SPDX-FileCopyrightText: 2021 Alex McLain
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule ATECC508A.Transport.I2CServer do
   @moduledoc false
   use GenServer

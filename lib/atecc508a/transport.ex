@@ -1,3 +1,9 @@
+# SPDX-FileCopyrightText: 2018 Frank Hunleth
+# SPDX-FileCopyrightText: 2019 Justin Schneck
+# SPDX-FileCopyrightText: 2021 Alex McLain
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule ATECC508A.Transport do
   @moduledoc """
   ATECC508A transport behaviour
