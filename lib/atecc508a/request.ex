@@ -189,7 +189,10 @@ defmodule ATECC508A.Request do
           # See Table 11-50 - Mode Encoding
           sign_mode = <<5::size(3), 0::size(4), 0::size(1)>>
 
-          request.(<<@atecc508a_op_sign, sign_mode::binary, key_id::little-16>>, 115, 64)
+          # datasheet has typical values, recommendation for ATECC608 is up to +50ms
+          # we measured 129ms working for 500 attempts without failing
+          # 129 base + 50 margin = 179 ms is hopefully plenty
+          request.(<<@atecc508a_op_sign, sign_mode::binary, key_id::little-16>>, 179, 64)
 
         {error, _retry} ->
           error

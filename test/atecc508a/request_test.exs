@@ -174,7 +174,7 @@ defmodule ATECC508A.RequestTest do
     end)
 
     ATECC508A.Transport.Mock
-    |> expect(:request, fn _, <<0x41, 0xA0, 0, 0>>, 115, 64 -> {:ok, @test_data_64} end)
+    |> expect(:request, fn _, <<0x41, 0xA0, 0, 0>>, 179, 64 -> {:ok, @test_data_64} end)
 
     assert Request.sign_digest(@mock_transport, 0, @test_data_32) == {:ok, @test_data_64}
   end
