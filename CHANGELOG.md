@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.3.1
+
+* Changes
+  * Fix sign_digest timeout to work for the ATECC608
+  * Update licensing and copyright for [REUSE compliance](https://reuse.software/)
+  * Drop Elixir 1.11 and 1.12 support since too hard to test any more
+
 ## v1.3.0
 
 * New features
