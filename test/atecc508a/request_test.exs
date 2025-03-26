@@ -2,6 +2,7 @@
 # SPDX-FileCopyrightText: 2021 Alex McLain
 # SPDX-FileCopyrightText: 2023 Connor Rigby
 # SPDX-FileCopyrightText: 2024 Serhii Lukianov
+# SPDX-FileCopyrightText: 2025 Lars Wikman
 #
 # SPDX-License-Identifier: Apache-2.0
 #
