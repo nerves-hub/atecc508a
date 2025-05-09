@@ -13,6 +13,7 @@ defmodule ATECC508A.Request do
   """
 
   alias ATECC508A.Transport
+  alias ATECC508A.Host
 
   @type zone :: :config | :otp | :data
   @type slot :: 0..15
@@ -30,6 +31,7 @@ defmodule ATECC508A.Request do
   @type transaction :: {binary(), non_neg_integer(), non_neg_integer()}
 
   @atecc508a_op_read 0x02
+  @atecc508a_op_mac 0x08
   @atecc508a_op_write 0x12
   @atecc508a_op_nonce 0x16
   @atecc508a_op_genkey 0x40
@@ -37,6 +39,9 @@ defmodule ATECC508A.Request do
   @atecc508a_op_random 0x1B
   @atecc508a_op_sign 0x41
   @atecc508a_op_ecdh 0x43
+  @atecc508a_op_sha 0x47
+  @atecc508a_op_info 0x30
+  @atecc508a_op_checkmac 0x28
 
   # See https://github.com/MicrochipTech/cryptoauthlib/blob/master/lib/calib/calib_execution.c
   # for command max execution times. I'm not sure why they are different from the
@@ -108,7 +113,8 @@ defmodule ATECC508A.Request do
         data::binary>>
 
     transport
-    |> transport_request(payload, 45, 1)
+    # The timeout for writing was increased due to timeouts on ATECC608A and ATECC608B devices
+    |> transport_request(payload, 100, 1)
     |> return_status()
   end
 
@@ -141,7 +147,8 @@ defmodule ATECC508A.Request do
     payload = <<@atecc508a_op_lock, mode, zone_crc::binary>>
 
     transport
-    |> transport_request(payload, 35, 1)
+    # The timeout for locking was increased due to timeouts on ATECC608A and ATECC608B devices
+    |> transport_request(payload, 100, 1)
     |> return_status()
   end
 
@@ -209,6 +216,201 @@ defmodule ATECC508A.Request do
     payload = <<@atecc508a_op_ecdh, 0, 0, 0, raw_pub_key::binary>>
 
     transport_request(transport, payload, 998, 32)
+  end
+
+  def set_temp_key(transport, bytes) do
+    # 1-byte nonce
+    nonce_mode = <<
+      # tempkey
+      0::2,
+      # 32 bytes
+      0::1,
+      # must be zero
+      0::3,
+      # pass-through mode
+      3::2
+    >>
+
+    transport_request(
+      transport,
+      <<@atecc508a_op_nonce, nonce_mode::binary, 0::size(16), bytes::binary>>,
+      100,
+      1
+    )
+  end
+
+  def sha(transport, data) do
+    init_mode = <<
+      0::2,
+      0::3,
+      0::3
+    >>
+
+    init_request = <<@atecc508a_op_sha::8, init_mode::binary, 0::size(16)>>
+
+    fin_mode = <<
+      1::1,
+      1::1,
+      0::3,
+      2::3
+    >>
+
+    fin_request = <<@atecc508a_op_sha, fin_mode::binary, 0::size(16), data::binary>>
+
+    Transport.transaction(transport, fn r ->
+      with {{:ok, <<0>>}, _} <- r.(init_request, 500, 1) |> interpret_result() do
+        r.(fin_request, 500, 32)
+      end
+    end)
+  end
+
+  @doc """
+  Get persistent latch value.
+
+  Used for verifying the state of authorization.
+
+  Returns `{:ok, <<1,0,0,0>>}` if latch is set. Returns `{:ok, <<0,0,0,0>>}` if latch is not set. An error tuple is returned if the command fails.
+  """
+  @spec get_latch(Transport.t()) :: {:ok, binary()} | {:error, atom()}
+  def get_latch(transport) do
+    payload = <<@atecc508a_op_info, 4, 0, 0>>
+
+    # Timeout is arbitrary
+    transport_request(transport, payload, 200, 4)
+  end
+
+  @doc """
+  Perform a transaction to authenticate volatile key protection using an activation key.
+
+  This takes the key slot holding the activation key (likely to be slot 1) and the activation key.
+
+  The transaction steps are:
+  - Generate a nonce inside the device sourced by the device RNG and a seed from the host. This returns the RNG output.
+  - Generate the identical nonce on the host based on the RNG and seed.
+  - Generate the CheckMac digest on the host using the activation key and produce a digest.
+  - Send the digest into the device CheckMac command to verify the activation key. This authorizes the transaction.
+  - Set the persistent latch to enable the protected keys.
+
+  Return :ok for success. Returns an error tuple indicating failure.
+  """
+  @spec auth_volatile_key(Transport.t(), slot(), binary()) ::
+          :ok | {:error, atom()} | {:error, binary()}
+  def auth_volatile_key(transport, key_id, key) do
+    {:ok, <<sn0_3::4-bytes, _::4-bytes, sn4_8::5-bytes, _::binary>>} =
+      read_zone(transport, :config, 0, 32)
+
+    serial_number = sn0_3 <> sn4_8
+
+    result =
+      Transport.transaction(transport, fn request ->
+        nonce_mode = <<
+          # target -> TempKey
+          0::2,
+          # 32 bytes
+          0::1,
+          # must be zero
+          0::3,
+          # Generate random nonce
+          0::2
+        >>
+
+        checkmac_mode = <<
+          # must be zero
+          0::5,
+          # TempKey.sourceFlag = Rand (0)
+          0::1,
+          # Use key from keyId (must be zero for volatile key authorization)
+          0::1,
+          # Use nonce from TempKey
+          1::1
+        >>
+
+        <<latch_req::4-bytes>> = <<@atecc508a_op_info, 4, 0::6, 3::2, 0::8>>
+
+        <<_::20-bytes>> = rand = Host.rand(20)
+
+        # First nonce generates a random nonce to TempKey, sets TempKey.SourceFlag = Rand
+        # and returns the random value
+        nonce_req_seed = <<@atecc508a_op_nonce, nonce_mode::binary, 0::1, 0::15, rand::binary>>
+
+        with {:ok, <<rng::32-bytes>>} <- request.(nonce_req_seed, 100, 32),
+             <<nonce::32-bytes>> <- Host.random_nonce(rng, rand, nonce_mode) do
+          %{digest: digest, other: other} = Host.checkmac(key, nonce, serial_number)
+
+          <<check_req::81-bytes>> =
+            <<@atecc508a_op_checkmac, checkmac_mode::1-bytes, key_id::little-16, 0::256,
+              digest::32-bytes, other::binary>>
+
+          with {:check, {:ok, <<0>>}} <- {:check, request.(check_req, 1000, 1)},
+               {:latch, {:ok, <<1::8, 0::24>>}} <- {:latch, request.(latch_req, 998, 4)} do
+            {:ok, <<1>>}
+          else
+            {:check, {:ok, <<1>>}} -> {:error, :checkmac_mismatch}
+            {:latch, {:ok, <<0, 0, 0, 0>>}} -> {:error, :latch_failed_to_set}
+            {:check, {:error, err}} -> {:error, err}
+            {:latch, {:error, err}} -> {:error, err}
+          end
+        end
+      end)
+
+    case result do
+      {:ok, <<1>>} -> :ok
+      {:error, err} -> {:error, err}
+    end
+  end
+
+  @doc """
+  Generate a MAC deterministically using a given input.
+
+  Combines the key in a slot, some internal values and an input value to produce a digest.
+
+  This is primarily implemented as it can be used to verify the behavior of the device and
+  whether a key is disabled by the persistent latch or not.
+
+  Returns the digest if successful, otherwise an error tuple.
+  """
+  @spec mac_deterministic(
+          transport :: Transport.t(),
+          key_id :: non_neg_integer(),
+          input :: binary()
+        ) ::
+          {:ok, binary()} | {:error, term()}
+  def mac_deterministic(transport, key_id, <<_::32-bytes>> = input) do
+    Transport.transaction(transport, fn request ->
+      nonce_mode = <<
+        # tempkey
+        0::2,
+        # 32 bytes
+        0::1,
+        # must be zero
+        0::3,
+        # pass-through mode
+        3::2
+      >>
+
+      mac_mode = <<
+        # must be zero
+        0::1,
+        # don't do the extra OtherData serial thing
+        0::1,
+        # must be zero
+        0::3,
+        # target SourceFlag.Input
+        1::1,
+        # Use key from keyId (must be zero for volatile key authorization)
+        0::1,
+        # Use nonce from TempKey
+        1::1
+      >>
+
+      nonce_req = <<@atecc508a_op_nonce, nonce_mode::binary, 0::size(16), input::binary>>
+      mac_req = <<@atecc508a_op_mac, mac_mode::binary, key_id::little-16>>
+
+      with {:ok, <<0>>} <- request.(nonce_req, 100, 1),
+           {:ok, <<digest::32-bytes>>} <- request.(mac_req, 500, 32) do
+        {:ok, digest}
+      end
+    end)
   end
 
   defp zone_index(:config), do: 0

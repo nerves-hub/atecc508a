@@ -9,6 +9,7 @@ defmodule ATECC508A.Configuration do
   """
 
   alias ATECC508A.{Request, Transport}
+  alias ATECC508A.Configuration.Config608
 
   defstruct [
     :serial_number,
@@ -61,11 +62,21 @@ defmodule ATECC508A.Configuration do
   @doc """
   Read the configuration
   """
-  @spec read(Transport.t()) :: {:ok, t()} | {:error, atom()}
-  def read(transport) do
+  @spec read(Transport.t(), :atecc508 | :atecc608) ::
+          {:ok, t() | Config608.t()} | {:error, atom()}
+  def read(transport, features \\ :atecc508) do
     case read_all_raw(transport) do
-      {:ok, contents} -> {:ok, from_raw(contents)}
-      error -> error
+      {:ok, contents} ->
+        case features do
+          :atecc508 ->
+            {:ok, from_raw(contents)}
+
+          :atecc608 ->
+            {:ok, from_raw608(contents)}
+        end
+
+      error ->
+        error
     end
   end
 
@@ -75,8 +86,26 @@ defmodule ATECC508A.Configuration do
   This only works when the ATECC508A is unlocked and only bytes not all bytes can
   be changed. This only writes the ones that can.
   """
-  @spec write(Transport.t(), t()) :: :ok | {:error, atom()}
+  @spec write(Transport.t(), t() | Config608.t()) :: :ok | {:error, atom()}
   def write(transport, %__MODULE__{} = info) do
+    data = to_raw(info)
+
+    <<_read_only::16-bytes, writable0::16-bytes, writable1::32-bytes, writable2::20-bytes,
+      _special::8-bytes, x509::4-bytes, key_config::32-bytes>> = data
+
+    # Use 4-byte writes for everything except for writable1 and key_config which both
+    # land on 32-byte boundaries
+
+    with :ok <- multi_write(transport, 16, writable0),
+         :ok <- Request.write_zone(transport, :config, Request.to_config_addr(32), writable1),
+         :ok <- multi_write(transport, 64, writable2),
+         :ok <- multi_write(transport, 92, x509),
+         :ok <- Request.write_zone(transport, :config, Request.to_config_addr(96), key_config) do
+      :ok
+    end
+  end
+
+  def write(transport, %Config608{} = info) do
     data = to_raw(info)
 
     <<_read_only::16-bytes, writable0::16-bytes, writable1::32-bytes, writable2::20-bytes,
@@ -160,7 +189,7 @@ defmodule ATECC508A.Configuration do
   written by design. The logic is that this is a final chance before it's too
   late to check that the device is programmed correctly.
   """
-  @spec lock(Transport.t(), t()) :: :ok | {:error, atom()}
+  @spec lock(Transport.t(), t() | Config608.t()) :: :ok | {:error, atom()}
   def lock(transport, expected_contents) do
     crc = expected_contents |> to_raw() |> ATECC508A.CRC.crc()
 
@@ -204,10 +233,57 @@ defmodule ATECC508A.Configuration do
   end
 
   @doc """
+  Convert a raw configuration to a nice map in the style of an ATECC608 chip.
+  """
+  @spec from_raw608(<<_::1024>>) :: Config608.t()
+  def from_raw608(raw) do
+    binfields = Config608.bin_fields()
+
+    Config608.fields()
+    |> Enum.reduce({raw, %Config608{}}, fn {field, bytes}, {raw, config} ->
+      bits = bytes * 8
+      <<value::size(bits), new_raw::binary>> = raw
+
+      {f, value} =
+        case field do
+          # Merge serial number parts
+          :serial_number_1 ->
+            <<value::binary-size(bytes), _::binary>> = raw
+            {:serial_number, value}
+
+          :serial_number_2 ->
+            <<value::binary-size(bytes), _::binary>> = raw
+            {:serial_number, config.serial_number <> value}
+
+          # handle rev number
+          :rev_num ->
+            <<value::binary-size(bytes), _::binary>> = raw
+            {field, decode_rev_num(value)}
+
+          # handle volatile key data
+          :volatile_key_permission ->
+            <<value::binary-size(bytes), _::binary>> = raw
+            {field, decode_volatile_key_permission(value)}
+
+          field ->
+            if field in binfields do
+              <<value::binary-size(bytes), _::binary>> = raw
+              {field, value}
+            else
+              {field, value}
+            end
+        end
+
+      {new_raw, Map.put(config, f, value)}
+    end)
+    |> elem(1)
+  end
+
+  @doc """
   Convert a nice config map back to a raw configuration
   """
-  @spec to_raw(t()) :: <<_::1024>>
-  def to_raw(info) do
+  @spec to_raw(t() | Config608.t()) :: <<_::1024>>
+  def to_raw(%__MODULE__{} = info) do
     <<sn0_3::4-bytes, sn4_8::5-bytes>> = info.serial_number
     rev_num = encode_rev_num(info.rev_num)
 
@@ -217,6 +293,60 @@ defmodule ATECC508A.Configuration do
       info.last_key_use::16-bytes, info.user_extra, info.selector, info.lock_value,
       info.lock_config, info.slot_locked::little-16, info.rfu::2-bytes, info.x509_format::4-bytes,
       info.key_config::32-bytes>>
+  end
+
+  def to_raw(%Config608{} = config) do
+    Config608.fields()
+    |> Enum.reduce([], fn {field, bytes}, raw ->
+      bits = bytes * 8
+
+      val =
+        case field do
+          # Merge serial number parts
+          :serial_number_1 ->
+            <<sn1::binary-size(bytes), _::binary>> = config.serial_number
+            sn1
+
+          :serial_number_2 ->
+            <<_::binary-size(4), sn2::binary-size(bytes)>> = config.serial_number
+            sn2
+
+          # handle rev number
+          :rev_num ->
+            encode_rev_num(config.rev_num)
+
+          # handle volatile key data
+          :volatile_key_permission ->
+            encode_volatile_key_permission(config.volatile_key_permission)
+
+          _ ->
+            config
+            |> Map.get(field)
+            |> padded_binary(bits)
+        end
+
+      [raw, val]
+    end)
+    |> IO.iodata_to_binary()
+  end
+
+  @spec supports_volatile?(t()) :: boolean()
+  def supports_volatile?(%__MODULE__{rev_num: rev_num})
+      when rev_num in [:ecc608a_1, :ecc608_2, :ecc608b] do
+    true
+  end
+
+  def supports_volatile?(_) do
+    false
+  end
+
+  defp padded_binary(val, bits) when is_binary(val) do
+    pad = bits - byte_size(val) * 8
+    <<0x0::size(pad), val::binary>>
+  end
+
+  defp padded_binary(val, bits) do
+    <<val::size(bits)>>
   end
 
   # These were found by in cryptoauthlib
@@ -239,6 +369,19 @@ defmodule ATECC508A.Configuration do
   defp encode_rev_num(:ecc204_9), do: <<0x00, 0x02, 0x00, 0x09>>
   defp encode_rev_num(:ecc204_0), do: <<0x00, 0x04, 0x05, 0x08>>
   defp encode_rev_num(unknown) when byte_size(unknown) == 4, do: unknown
+
+  # defp decode_volatile_key_permission(<<key::4, 0x00::3, enabled::1>>) do
+  #  %{key: key, enabled?: enabled == 1}
+  # end
+  defp decode_volatile_key_permission(<<enabled::1, 0x00::3, key::4>>) do
+    %{key: key, enabled?: enabled == 1}
+  end
+
+  defp encode_volatile_key_permission(%{key: key, enabled?: enabled?}) do
+    enabled = if enabled?, do: 1, else: 0
+    # <<key::4, 0x00::3, enabled::1>>
+    <<enabled::1, 0x00::3, key::4>>
+  end
 
   defp multi_write(_transport, _addr, <<>>), do: :ok
 
