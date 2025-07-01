@@ -16,5 +16,5 @@
   "mox": {:hex, :mox, "1.2.0", "a2cd96b4b80a3883e3100a221e8adc1b98e4c3a332a8fc434c39526babafd5b3", [:mix], [{:nimble_ownership, "~> 1.0", [hex: :nimble_ownership, repo: "hexpm", optional: false]}], "hexpm", "c7b92b3cc69ee24a7eeeaf944cd7be22013c52fcb580c1f33f50845ec821089a"},
   "nimble_ownership": {:hex, :nimble_ownership, "1.0.1", "f69fae0cdd451b1614364013544e66e4f5d25f36a2056a9698b793305c5aa3a6", [:mix], [], "hexpm", "3825e461025464f519f3f3e4a1f9b68c47dc151369611629ad08b636b73bb22d"},
   "nimble_parsec": {:hex, :nimble_parsec, "1.4.2", "8efba0122db06df95bfaa78f791344a89352ba04baedd3849593bfce4d0dc1c6", [:mix], [], "hexpm", "4b21398942dda052b403bbe1da991ccd03a053668d147d53fb8c4e0efe09c973"},
-  "x509": {:hex, :x509, "0.8.10", "5d1ec6d5f4db31982f9dc34e6a1eebd631d04599e0b6c1c259f1dadd4495e11f", [:mix], [], "hexpm", "a191221665af28b9bdfff0c986ef55f80e126d8ce751bbdf6cefa846410140c0"},
+  "x509": {:hex, :x509, "0.9.1", "c92026a17b7d93f19029842ca218f82ec1f1e7cc9d4aa0c48327ee778f7f482e", [:mix], [], "hexpm", "99328951a1480cfd7b1b8aa688f857f7f5bbea03077b78cad211fb3b30c2f4a8"},
 }
