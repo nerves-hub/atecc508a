@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.4.0
+
+* Changes
+  * Support authorized key usage via volatile key on ATECC608 (Thanks to @lawik)
+  * Fix Elixir 1.19 warnings
+  * Drop Elixir 1.13 support
+
 ## v1.3.1
 
 * Changes
