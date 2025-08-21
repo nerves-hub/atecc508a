@@ -19,12 +19,7 @@ defmodule ATECC508A.MixProject do
       docs: docs(),
       description: description(),
       package: package(),
-      source_url: @source_url,
-      preferred_cli_env: %{
-        docs: :docs,
-        "hex.publish": :docs,
-        "hex.build": :docs
-      }
+      source_url: @source_url
     ]
   end
 
@@ -33,6 +28,10 @@ defmodule ATECC508A.MixProject do
       extra_applications: [:logger],
       mod: {ATECC508A.Application, []}
     ]
+  end
+
+  def cli do
+    [preferred_envs: %{docs: :docs, "hex.publish": :docs, "hex.build": :docs}]
   end
 
   # Specifies which paths to compile per environment.

@@ -43,7 +43,7 @@ defmodule ATECC508A.Validity do
 
     expire_date =
       if expire_years != 0 do
-        %DateTime{issue_date | year: issue_date.year + expire_years}
+        %{issue_date | year: issue_date.year + expire_years}
       else
         # Special "no expiration date"
         max_date()
