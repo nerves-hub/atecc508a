@@ -5,12 +5,14 @@
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/nerves-hub/atecc508a/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/nerves-hub/atecc508a/tree/main)
 [![REUSE status](https://api.reuse.software/badge/github.com/nerves-hub/atecc508a)](https://api.reuse.software/info/github.com/nerves-hub/atecc508a)
 
-The [ATECC508A Crypto Authentication](https://www.microchip.com/wwwproducts/en/ATECC508A)
-(or the newer ATECC608A) is the main component of the NervesKey. If your device
-needs to authenticate with NervesHub or another cloud service using client-side
-SSL, this library could be of interest. The higher level
+This library interfaces to the Microchip ATECC508 and ATECC608 secure elements.
+If your device needs to authenticate with NervesHub or another cloud service
+using client-side SSL, this library could be of interest. The higher level
 [NervesKey](https://github.com/nerves-hub/nerves_key) package will likely make
 more sense and you're recommended to start there.
+
+For historical reasons, this library is called ATECC508A. However, most users
+have long since moved on to using ATECC608 parts.
 
 ## Installation
 
@@ -29,7 +31,7 @@ Documentation can be found at [https://hexdocs.pm/atecc508a](https://hexdocs.pm/
 
 ## Quick start
 
-Connect an ATECC508A or ATECC608A to an I2C bus on your device. If this is a new
+Connect an ATECC508 or ATECC608 to an I2C bus on your device. If this is a new
 device, it won't be configured and therefore it can't do much exciting. You can
 still read the configuration block, though. Here's a walk-through:
 
