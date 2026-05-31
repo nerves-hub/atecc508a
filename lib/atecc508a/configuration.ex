@@ -9,8 +9,9 @@ defmodule ATECC508A.Configuration do
   This module handles operations on the configuration zone.
   """
 
-  alias ATECC508A.{Request, Transport}
   alias ATECC508A.Configuration.Config608
+  alias ATECC508A.Request
+  alias ATECC508A.Transport
 
   defstruct [
     :serial_number,

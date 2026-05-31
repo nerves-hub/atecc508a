@@ -54,11 +54,11 @@ defmodule ATECC608B.TrustAndGoCertTest do
     <<
       _compressed_signature::binary-size(64),
       _compressed_validity::binary-size(3),
-      signer_id::size(16),
-      template_id::size(4),
-      _chain_id::size(4),
-      _serial_number_source::size(4),
-      _format_version::size(4),
+      signer_id::16,
+      template_id::4,
+      _chain_id::4,
+      _serial_number_source::4,
+      _format_version::4,
       0::size(8)
     >> = ATECC508A.Sim608BTNG.device_cert()
 

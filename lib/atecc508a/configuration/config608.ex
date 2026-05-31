@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 defmodule ATECC508A.Configuration.Config608 do
+  @moduledoc false
   defstruct [
     :serial_number,
     :rev_num,
@@ -61,7 +62,7 @@ defmodule ATECC508A.Configuration.Config608 do
           key_config: <<_::256>>
         }
 
-  def fields do
+  def fields() do
     [
       serial_number_1: 4,
       rev_num: 4,
@@ -93,7 +94,7 @@ defmodule ATECC508A.Configuration.Config608 do
     ]
   end
 
-  def bin_fields do
+  def bin_fields() do
     [
       :serial_number,
       :reserved0,

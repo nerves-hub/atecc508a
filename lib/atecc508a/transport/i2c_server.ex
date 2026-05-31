@@ -203,15 +203,13 @@ defmodule ATECC508A.Transport.I2CServer do
   end
 
   defp extract_payload(payload_length, payload_and_crc) do
-    try do
-      <<payload::binary-size(payload_length), crc::binary-size(2), _extra::binary>> =
-        payload_and_crc
+    <<payload::binary-size(payload_length), crc::binary-size(2), _extra::binary>> =
+      payload_and_crc
 
-      {:ok, payload, crc}
-    catch
-      _, _ ->
-        {:error, :short_packet}
-    end
+    {:ok, payload, crc}
+  catch
+    _, _ ->
+      {:error, :short_packet}
   end
 
   defp wakeup(i2c, address, retries \\ @atecc508a_default_wakeup_retries)

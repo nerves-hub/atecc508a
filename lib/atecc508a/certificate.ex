@@ -155,8 +155,8 @@ defmodule ATECC508A.Certificate do
 
     data =
       <<compressed_signature::binary-size(64), compressed_validity::binary-size(3),
-        template.signer_id::size(16), template.template_id::size(4), template.chain_id::size(4),
-        serial_number_source::size(4), format_version::size(4), reserved>>
+        template.signer_id::16, template.template_id::4, template.chain_id::4,
+        serial_number_source::4, format_version::4, reserved>>
 
     %ATECC508A.Certificate.Compressed{
       data: data,
@@ -177,12 +177,12 @@ defmodule ATECC508A.Certificate do
     <<
       compressed_signature::binary-size(64),
       compressed_validity::binary-size(3),
-      signer_id::size(16),
-      template_id::size(4),
-      chain_id::size(4),
-      serial_number_source::size(4),
-      format_version::size(4),
-      0::size(8)
+      signer_id::16,
+      template_id::4,
+      chain_id::4,
+      serial_number_source::4,
+      format_version::4,
+      0::8
     >> = compressed.data
 
     template = compressed.template
@@ -343,7 +343,7 @@ defmodule ATECC508A.Certificate do
 
   # Helpers
 
-  defp unsigned_to_signed_bin(<<1::size(1), _::size(7), _::binary>> = bin),
+  defp unsigned_to_signed_bin(<<1::1, _::7, _::binary>> = bin),
     do: <<0x00, bin::binary>>
 
   defp unsigned_to_signed_bin(bin), do: bin
