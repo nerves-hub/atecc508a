@@ -111,8 +111,6 @@ defmodule ATECC508A.Host do
         0::size(8 * 8), 0::size(3 * 8), sn8::1-bytes, 0::size(4 * 8), sn0_1::2-bytes,
         0::size(2 * 8)>>
 
-    IO.inspect(byte_size(msg))
-
     %{
       msg: msg,
       digest: digest(msg)
