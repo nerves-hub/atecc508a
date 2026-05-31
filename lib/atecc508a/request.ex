@@ -12,8 +12,8 @@ defmodule ATECC508A.Request do
   This module knows how to send requests to the ATECC508A.
   """
 
-  alias ATECC508A.Transport
   alias ATECC508A.Host
+  alias ATECC508A.Transport
 
   @type zone :: :config | :otp | :data
   @type slot :: 0..15
@@ -161,7 +161,7 @@ defmodule ATECC508A.Request do
     # locked for this to work.
 
     # See Table 9-31 - Mode Encoding
-    mode = <<0::size(2), slot::size(4), 2::size(2)>>
+    mode = <<0::2, slot::4, 2::2>>
     payload = <<@atecc508a_op_lock, mode::binary, 0::size(16)>>
 
     transport
