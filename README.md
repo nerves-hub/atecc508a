@@ -1,7 +1,7 @@
 # ATECC508A
 
 [![Hex version](https://img.shields.io/hexpm/v/atecc508a.svg "Hex version")](https://hex.pm/packages/atecc508a)
-[![API docs](https://img.shields.io/hexpm/v/atecc508a.svg?label=hexdocs "API docs")](https://hexdocs.pm/atecc508a/ATECC508A.html)
+[![API docs](https://img.shields.io/hexpm/v/atecc508a.svg?label=hexdocs "API docs")](https://atecc508a.hexdocs.pm/ATECC508A.html)
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/nerves-hub/atecc508a/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/nerves-hub/atecc508a/tree/main)
 [![REUSE status](https://api.reuse.software/badge/github.com/nerves-hub/atecc508a)](https://api.reuse.software/info/github.com/nerves-hub/atecc508a)
 
@@ -27,7 +27,7 @@ def deps do
 end
 ```
 
-Documentation can be found at [https://hexdocs.pm/atecc508a](https://hexdocs.pm/atecc508a).
+Documentation can be found at [https://atecc508a.hexdocs.pm](https://hexdocs.pm/atecc508a).
 
 ## Quick start
 
