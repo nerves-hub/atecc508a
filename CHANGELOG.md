@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.5.0
+
+* Changes
+  * Fix Elixir 1.20 warnings
+  * Drop Elixir 1.14 support since 1.20 fixes don't compile there
+
 ## v1.4.0
 
 * Changes
