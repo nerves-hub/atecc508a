@@ -12,7 +12,6 @@ defmodule ATECC508A.Transport.I2C do
   @behaviour ATECC508A.Transport
 
   alias ATECC508A.Transport
-  require Logger
 
   @default_atecc508a_bus "i2c-1"
   @default_atecc508a_address 0x60

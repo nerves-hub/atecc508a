@@ -203,7 +203,7 @@ defmodule ATECC508A.Transport.I2CServer do
   end
 
   defp extract_payload(payload_length, payload_and_crc) do
-    <<payload::binary-size(payload_length), crc::binary-size(2), _extra::binary>> =
+    <<payload::binary-size(^payload_length), crc::binary-size(2), _extra::binary>> =
       payload_and_crc
 
     {:ok, payload, crc}

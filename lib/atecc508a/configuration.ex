@@ -244,32 +244,32 @@ defmodule ATECC508A.Configuration do
     Config608.fields()
     |> Enum.reduce({raw, %Config608{}}, fn {field, bytes}, {raw, config} ->
       bits = bytes * 8
-      <<value::size(bits), new_raw::binary>> = raw
+      <<value::size(^bits), new_raw::binary>> = raw
 
       {f, value} =
         case field do
           # Merge serial number parts
           :serial_number_1 ->
-            <<value::binary-size(bytes), _::binary>> = raw
+            <<value::binary-size(^bytes), _::binary>> = raw
             {:serial_number, value}
 
           :serial_number_2 ->
-            <<value::binary-size(bytes), _::binary>> = raw
+            <<value::binary-size(^bytes), _::binary>> = raw
             {:serial_number, config.serial_number <> value}
 
           # handle rev number
           :rev_num ->
-            <<value::binary-size(bytes), _::binary>> = raw
+            <<value::binary-size(^bytes), _::binary>> = raw
             {field, decode_rev_num(value)}
 
           # handle volatile key data
           :volatile_key_permission ->
-            <<value::binary-size(bytes), _::binary>> = raw
+            <<value::binary-size(^bytes), _::binary>> = raw
             {field, decode_volatile_key_permission(value)}
 
           field ->
             if field in binfields do
-              <<value::binary-size(bytes), _::binary>> = raw
+              <<value::binary-size(^bytes), _::binary>> = raw
               {field, value}
             else
               {field, value}
@@ -306,11 +306,11 @@ defmodule ATECC508A.Configuration do
         case field do
           # Merge serial number parts
           :serial_number_1 ->
-            <<sn1::binary-size(bytes), _::binary>> = config.serial_number
+            <<sn1::binary-size(^bytes), _::binary>> = config.serial_number
             sn1
 
           :serial_number_2 ->
-            <<_::binary-size(4), sn2::binary-size(bytes)>> = config.serial_number
+            <<_::binary-size(4), sn2::binary-size(^bytes)>> = config.serial_number
             sn2
 
           # handle rev number
