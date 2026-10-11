@@ -2,6 +2,7 @@
 
 [![Hex version](https://img.shields.io/hexpm/v/atecc508a.svg "Hex version")](https://hex.pm/packages/atecc508a)
 [![API docs](https://img.shields.io/hexpm/v/atecc508a.svg?label=hexdocs "API docs")](https://atecc508a.hexdocs.pm/ATECC508A.html)
+[![Nerves compatibility](https://compatibility.nerves-project.org/badge/atecc508a.svg)](https://compatibility.nerves-project.org/packages/atecc508a)
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/nerves-hub/atecc508a/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/nerves-hub/atecc508a/tree/main)
 [![REUSE status](https://api.reuse.software/badge/github.com/nerves-hub/atecc508a)](https://api.reuse.software/info/github.com/nerves-hub/atecc508a)
 
